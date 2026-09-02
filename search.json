@@ -1,0 +1,79 @@
+[
+  {
+    "objectID": "bubble_explorer.html",
+    "href": "bubble_explorer.html",
+    "title": "Colocalization Explorer",
+    "section": "",
+    "text": "Locus\n\n\n\n\n\n\n\n\nFamília do dataset\n\n\n\nBigBrain\n\n\n\nDevBrain\n\n\n\nGTEx\n\n\n\nSingleBrain\n\n\n\n\n\n\n\n\n\nTip: start typing the name of a locus (ex. BIN1, KAT8) — the plot is only legible with 1 to 3 loci selected."
+  },
+  {
+    "objectID": "manhattan.html",
+    "href": "manhattan.html",
+    "title": "Alzheimer’s disease GWAS — interactive colocalization Manhattan plot",
+    "section": "",
+    "text": "NoteHow to use\n\n\n\n\n\nHover your mouse in any variant of a significant locus: all variants of that locus will turn red and the box will show the summary of colocalization of that locus. Double-click to clear the highlight. For busiest regions you can use the zoom tool to help separate the labels.\nThe background points are variants outside the colocalization windows and are not interactive. To keep the scale legible, the plot shows only variants with p &lt; 1e-4 and the y axis was truncated on the top because of APOE locus."
+  },
+  {
+    "objectID": "manhattan.html#summary-of-colocalization-results-by-locus",
+    "href": "manhattan.html#summary-of-colocalization-results-by-locus",
+    "title": "Alzheimer’s disease GWAS — interactive colocalization Manhattan plot",
+    "section": "Summary of colocalization results by locus",
+    "text": "Summary of colocalization results by locus"
+  },
+  {
+    "objectID": "cell_type.html",
+    "href": "cell_type.html",
+    "title": "Cell Type Specificity",
+    "section": "",
+    "text": "Ordered: pairs restricted to a single cell type first, grouped by the dominant type."
+  },
+  {
+    "objectID": "previous_findings.html",
+    "href": "previous_findings.html",
+    "title": "Previous Findings",
+    "section": "",
+    "text": "123\nLoci on the table\n\n\n58\nwith literature reports to compare\n\n\n83%\nconvergence\n\n\n65\nno previous register (new or non-audited loci)"
+  },
+  {
+    "objectID": "previous_findings.html#full-table",
+    "href": "previous_findings.html#full-table",
+    "title": "Previous Findings",
+    "section": "Full table",
+    "text": "Full table\n\n\n\n\n\n\n\n\n\n\n\n\nNoteComo a convergência é calculada\n\n\n\n\n\nConvergence = at least one gene in common between the genes that colocalized on this analysis (genes_significant) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). Divergence = there’s literature for the locus, but none of the genes coincides. No comparison = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis)."
+  },
+  {
+    "objectID": "regional_plots.html",
+    "href": "regional_plots.html",
+    "title": "Regional Plots",
+    "section": "",
+    "text": "Note\n\n\n\n837 arquivo(s) encontrados em data/regional_plots/; 571 casados com um par locus|gene conhecido. AVISO: coluna splice_id ausente no CSV – plots de sQTL podem não casar (reprocesse o aggregate_coloc.R com a correção do splice_id).\n\n\n\n\n\n\n\n\nClique numa miniatura para abrir o regional plot em tamanho real."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
+    "section": "",
+    "text": "Note\n\n\n\nThis is still an ongoing project - results will keep being updated while the analysis advances.\n97\ntested loci\n\n\n86 (89%)\nloci with significant colocalization\n\n\n417\nprioritized genes\n\n\n423\nlocus–gene pairs\n\n\n273\nsQTL events\n\n\n44666\ntests in fetal brain datasets"
+  },
+  {
+    "objectID": "index.html#how-to-use-it",
+    "href": "index.html#how-to-use-it",
+    "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
+    "section": "How to use it",
+    "text": "How to use it\n\nManhattan (interactive) — Manhattan plot of the whole genome, hover through a locus to show colocalization details.\nColocalization Explorer — Full colocalization bubble plot, you can filter by dataset family and locus.\nDevelopment vs Adult — Dev/adult contrast, with highlight to dev-only pairs.\nCell Type Specificity — cell type specificity heatmap (sceQTL).\nLocus Table — browsable table, with an overview of results by locus."
+  },
+  {
+    "objectID": "index.html#a-peek-at-the-methodology",
+    "href": "index.html#a-peek-at-the-methodology",
+    "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
+    "section": "A peek at the methodology",
+    "text": "A peek at the methodology\nThe results shown correspond to Bayesian colocalization (coloc.abf, PP.H4 ≥ 0,8) between the consensus AD GWAS (2026) and 23 xQTL datasets — BigBrain (adult, eQTL/sQTL), DevBrain (fetal, eQTL/sQTL), SingleBrain (7 major cell types) e GTEx (15 tissues). Colocalization windows were defined as 500 kb centered at the reported lead variant of each locus. Full methods will be published soon in a paper. Pipeline: nf_coloc."
+  },
+  {
+    "objectID": "dev_adult.html#all-dev-only-pairs",
+    "href": "dev_adult.html#all-dev-only-pairs",
+    "title": "Development vs Adult",
+    "section": "All dev-only pairs",
+    "text": "All dev-only pairs"
+  }
+]

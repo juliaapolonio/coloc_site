@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Previous Findings – AD Colocalization Atlas</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-9d28d9c504460864483fe04155c1dd77.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="site_libs/datatables-binding-0.34.0/datatables.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/dt-ext-buttons-1.13.6/css/buttons.dataTables.min.css" rel="stylesheet">
+<script src="site_libs/dt-ext-buttons-1.13.6/js/dataTables.buttons.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.html5.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.colVis.min.js"></script>
+<script src="site_libs/dt-ext-buttons-1.13.6/js/buttons.print.min.js"></script>
+<link href="site_libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+<script src="site_libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="site_libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+<script src="site_libs/selectize-0.12.0/selectize.min.js"></script>
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">AD Colocalization Atlas</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./manhattan.html"> 
+<span class="menu-text">Manhattan (interactive)</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./bubble_explorer.html"> 
+<span class="menu-text">Colocalization Explorer</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./dev_adult.html"> 
+<span class="menu-text">Development vs Adult</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./cell_type.html"> 
+<span class="menu-text">Cell Type Specificity</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./locus_table.html"> 
+<span class="menu-text">Locus Table</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./previous_findings.html" aria-current="page"> 
+<span class="menu-text">Previous Findings</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#full-table" id="toc-full-table" class="nav-link active" data-scroll-target="#full-table">Full table</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Previous Findings</h1>
+<p class="subtitle lead">Convergence between locus|gene pairs reported on this analysis and previously reported colocalizations (BigBrain, Bellenguez and SingleBrain papers).</p>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<div class="kpi-box">
+<span class="num">123</span>
+<span class="lab">Loci on the table</span>
+</div>
+<div class="kpi-box">
+<span class="num">58</span>
+<span class="lab">with literature reports to compare</span>
+</div>
+<div class="kpi-box">
+<span class="num">83%</span>
+<span class="lab">convergence</span>
+</div>
+<div class="kpi-box">
+<span class="num">65</span>
+<span class="lab">no previous register (new or non-audited loci)</span>
+</div>
+</div>
+</div>
+</div>
+<section id="full-table" class="level2">
+<h2 class="anchored" data-anchor-id="full-table">Full table</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-1fc5786f3d05c1f0f7ff" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-1fc5786f3d05c1f0f7ff">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","extensions":["Buttons"],"data":[["ABCA1","ABCA7","ABI3","ADAM17","ADAMTS4","ANK3","ANKH/OTULIN","APH1B","APOE","APP","BIN1","BLNK","CASS4","CD2AP","COX7C","CR1","CTSB","CTSH","DOC2A","EPHA1","FERMT2","GRN","HS3ST5","IDUA/DGKQ","INPP5D","IQCK","JAZF1","KLF16/REXO1","LILRB2","MYO15A/TOM1L2","PICALM","PLEKHA1","PRDM7","PRKD3","RASGEF1C","RBCK1","RHOH","SEC61G/EGFR","SHARPIN","SIGLEC11","SNX1/CIAO2A","SORL1","TMEM106B","TNIP1","TPCN1/RITA1/IQCD","TSPAN14","WDR12/ICA1L/CYP20A1","WDR81/SERPINF2","ACE","ADAM10","CD33","IGH gene cluster-signal1","MAF","NCK2","NME8","PLCG2","TREM2","TSPOAP1","","","","","","","","","","","","","","","","","","","","","","","","","","","ADAMTS1","ADGRL3","AGRN","ATP8B4","AXIN1","CELF1/SPI1","CEP89","CLNK","CLU/PTK2B","DOCK4","ECHDC3/USP6NL","EIF4G3","FAM193B","HBEGF","HLA","ICA1/UMAD1","IGH gene cluster-signal2","IL34/MTSS2","IPMK","KAT8/BCKDK","LILRB1/LILRB4","LRRC25","MAPT","MGAT5","MME","MS4A","PPP2R3A","PTPRC","SCIMP/RABEP1","SLC24A4/RIN3","SORT1","SPPL2A/USP8/USP50","SRC","TMEM184A","TRIB1","UBFD1","VAV1","VMAC","ZCWPW1/NYAP1"],["bellenguez","lambert","jansen","bellenguez","jansen","bellenguez","bellenguez","jansen","lambert","kunkle","lambert","bellenguez","lambert","lambert","bellenguez","lambert","bellenguez","bellenguez","bellenguez","lambert","lambert","bellenguez","bellenguez","bellenguez","lambert","kunkle","bellenguez","bellenguez","wightman","bellenguez","lambert","bellenguez","bellenguez","bellenguez","bellenguez","bellenguez","bellenguez","bellenguez","bellenguez, wightman","bellenguez","bellenguez","lambert","bellenguez","bellenguez, wightman","bellenguez","bellenguez","bellenguez","bellenguez","marioni","marioni","marioni","bellenguez","kunkle","wightman","","marioni","marioni","wightman","","","","","","","","","","","","","","","","","","","","","","","","","","","","novo","wightman","","novo","lambert","novo","jansen","lambert","novo","marioni","novo","novo","","lambert","belenguez","novo","marioni","novo","marioni","novo","novo","","novo","bellenguez","lambert","novo","novo","marioni","lambert","bellenguez","marioni","novo","novo","novo","novo","novo","novo",""],["Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Convergence","Divergence","Divergence","Divergence","Divergence","Divergence","Divergence","Divergence","Divergence","Divergence","Divergence","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison","No comparison"],["6","4","4","4","21","1","5","15","3","3","3","4","5","15","1","11","2","17","27","6","1","26","2","12","2","33","1","11","8","19","3","11","3","4","10","4","3","13","1","13","14","2","5","5","13","7","57","7","17","5","2","8","1","0","6","1","2","11","","","","","","","","","","","","","","","não encontrado no dado, achado em Jansen","não encontrado no dado, achado em Lambert","não encontrado no dado, achado em Wightman","parece ser o mesmo de NME8","parece ser o mesmo de ZCWPW1/NYAP1","não encontrado no dado, achado em Jansen","parece ser o mesmo de MS4","parece ser o mesmo de IGH cluster","não encontrado no dado, achado em Bellenguez","parece ser o mesmo de MAPT","não encontrado no dado, achado em Wightman","não encontrado no dado, achado em Bellenguez","1","0","12","0","10","16","11","0","9","0","2","24","9","43","3","2","0","3","5","71","7","12","4","0","0","4","2","0","6","4","0","12","2","8","1","32","0","5","17"],["5","4","1","3","15","1","5","15","3","2","3","4","5","0","1","10","2","16","19","6","1","26","2","7","1","6","1","8","5","6","3","10","3","3","10","4","3","9","1","11","6","2","0","3","0","4","30","4","16","1","2","7","1","0","5","1","2","8","","","","","Loci novo","Loci sem colocalização","","","","","","","","","","","","","","","","","","","","","1","0","6","0","5","4","5","0","9","0","0","13","6","17","2","0","0","3","0","43","5","10","3","0","0","3","0","0","6","4","0","8","1","4","1","5","0","5","15"],["ABCA1","ADAT3, ABCA7, REXO1, MIER2","SPOP, HOXB9, ZNF652, ZNF652-AS1","CYS1, ADAM17, HPCAL1","B4GALT3, DUSP12, ENSG00000132716, ENSG00000258465, ADAMTS4, NDUFS2, FCER1G, TOMM40L, IGSF8","CCDC6","OTULIN, OTULIN-DT","APH1B","ZNF234, ZNF285, ZNF227","APP, LINC00158","BIN1, CYP27C1","BLNK","CASS4, CSTF1","CD2AP-DT, CD2AP","RASA1","CR1, DYRK3","CTSB","CTSH","DOC2A, ENSG00000103472, ENSG00000284671, PPP4C, HIRIP3, TAOK2, ENSG00000169682, ENSG00000261067, KCTD13, NFATC2IP, SH2B1, YPEL3-DT, NFATC2IP-AS1, LOC112694756, YPEL3","CASP2, ZYX, GSTK1, EPHA1-AS1, TAS2R60","FERMT2","GRN, DHX8, UBTF, HEXIM2, ACBD4, GPATCH8, ENSG00000291175, ENSG00000214425, ITGA2B, chr17_44406051_44424348","HDAC2-AS2, MARCKS","DGKQ, FGFR3, IDUA, CPLX1, ENSG00000293360, ENSG00000182903","CHRND, NGEF","KNOP1, GPRC5B, IQCK, ACSM5, ERI2","JAZF1","ENSG00000071655, ENSG00000267059, REXO1, CBARP, REEP6, THOP1, ZNF555","19:54970660:54970717:clu_54852_NA, LILRB1, LILRB2, TTYH1, LILRA5, LAIR1","RASD1, LLGL1, MPRIP, GID4, ENSG00000170160, ENSG00000266302, SHMT1, FLII, ENSG00000179598, ENSG00000264187, ENSG00000262074, ENSG00000264940, MIEF2, PRPSAP2, TOM1L2, TOP3A","EED, PICALM","PLEKHA1, CUZD1, PSTK, chr10_122428316_122429623","DRC4, TUBB8P7","NDUFAF7, PRKD3, CEBPZOS","RASGEF1C, TBC1D9B, TRIM52-AS1","CSNK2A1, RBCK1","RFC1, RHOH","EGFR, VSTM2A, ENSG00000249773, ENSG00000178665, SLC25A5P3","SHARPIN","MED25, VRK3, SIGLEC11","CIAO2A, SNX1, SPG21, PARP16, TPM1, ENSG00000169118, ENSG00000259316","SORL1, TECTA","TMEM106B","NDST1, GLRA1, TNIP1, CSF1R","RITA1, DRC10","TSPAN14, ANXA11, DYDC2","CARF, CYP20A1, NOP58, FAM117B, WDR12, ABI2, NBEAL1, ICA1L, KIAA2012, KRT8P15","WDR81, MRM3, CCDC92B, SERPINF2","ACE, CD79B, TLK2, TANC2, ERN1, POLG2, ENSG00000266173, ENSG00000125695, PRR29","BNIP2, ENSG00000137878, ENSG00000255529, SLTM","ASPDH, SIGLEC22P","PACS2, INF2, LOC124903398, IGHG1","MAF","","VPS41, EPDR1, AOAH, AOAH-IT1","","MOCS1, RPL23P6","TSPOAP1, TEX14, MIR142HG, ENSG00000266086, ENSG00000136450","","","","","","","","","","","","","","","","","","","","","","","","","","","chr21_25982477_26000014","","INTS11, UBE2J2, ATAD3A, CCNL2, TUBB8P11, RN7SL657P, LOC101928626, HES4, SSU72","","AXIN1, MRPL28, NME4, CCDC78, RAB40C, ARHGDIG, PGAP6","MTCH2, MDK, MADD, CELF1, CREB3L1, SLC39A13, C1QTNF4, NR1H3","CEBPA-DT, CEP89, CHST8, FAAP24, RN7SKP22","","CLU, DPYSL2, PTK2B, PNOC","","USP6NL","CDC42, EIF4G3, RAP1GAP, USP48, KIF17, PLA2G5, NBPF3, UBXN10, ALPL, WNT4, OTUD3, PLA2G2A, LOC117779438, ENSG00000285959, ENSG00000218510, ENSG00000289694, ENSG00000289694, ENSG00000070831, HP1BP3","DOK3, KIAA1191, FAM193B, SIMC1, ARL10, CLTB, NSD1","HARS2, PFDN1, APBB3, TMCO6, PCDHB3, PCDHB5, CYSTM1, PCDHB12, SIL1, ANKHD1, ENSG00000131503, ENSG00000254996, UBE2D2, NRG2, MZB1, TAF7, PURA, PCDHB11, SNORA74A, PCDHA1, ENSG00000204970, ENSG00000204969, ENSG00000255408, ENSG00000204967, ENSG00000204965, ENSG00000081842, ENSG00000204963, ENSG00000204962, ENSG00000204961, ENSG00000250120, ENSG00000249158, ENSG00000251664, ENSG00000239389, ENSG00000248383, ENSG00000243232, LOC124900193, ANKHD1-DT, ENSG00000280987, ENSG00000015479, HBEGF","MICA, MICA-AS1","ICA1, GLCCI1","","NFAT5, AP1G1","CISD1, IPMK","STX1B, HSD3B7, BCL7C, CORO1A, GDPD3, STX4, BCKDK, KAT8, ITGAX, PPP4C, DOC2A, HIRIP3, TAOK2, TMEM219, PRR14, ZNF646, VKORC1, SEZ6L2, ASPHD1, PRSS36, SEPHS2, CFAP119, ENSG00000198064, ENSG00000183604, ENSG00000213599, ENSG00000261052, ZNF688, ENSG00000285043, ENSG00000149925, ENSG00000293487, ENSG00000214725, ITGAD, RNF40, SETD1A, ZNF668, chr16_30757654_30759177, chr16_31064481_31072739","BRSK1, PRKCG, COX6B2, TTYH1, FIZ1, chr19_54108395_54114441","ELL, HOMER3, ARMC6, LRRC25, NR2C2AP","DND1P1, HIGD1B, MAPK8IP1P1","","","TKFC, DDB1, FAM111A, PGA5","SLC35G2","","DHX33, RABEP1, ZZEF1, MYBBP1A, ZNF594-DT","RIN3, UNC79","","AP4E1, ATP8B4, DTWD1, DMXL2, LYSMD2, FGF7, FAM227B","DLGAP4, VSTM2L","INTS1, MAFK, PRKAR1B-AS1, MRM2, TMEM184A","LRATD2","CCNYL7, COG7, EARS2, GGA2, LOC124903667, RN7SKP23, UBFD1","","GTF2F1, KDM4B, RFX2, SAFB","AP4M1, AZGP1, STAG3, GIGYF1, TRIM4, CYP3A4, ZKSCAN5, LINC01007, LOC105375423, GNB2, LAMTOR4, SLC12A9"],["ABCA1","ARID3A, GRIN3B, DAZAP1, PTBP1, ABCA7, MBD3, CIRBP, C19orf25, R3HDM4, TMEM259, TPGS1","FLJ40194, SPOP, ATP5G1, ZNF652","EIF1P7, ITGB1BP1, CPSF3, IAH1, ADAM17, RP11-214N9.1","FCER1G, KLHDC9, PPOX, NOS1AP, USP21, DEDD, ARHGAP30, NDUFS2","CCDC6, ANK3","OTULIN","RASL12, APH1B, RAB8B, USP3, HERC1, SNX22, FAM96A","ENSG00000269124, ZNF404, ENSG00000267058, ZNF234, FBXO46, TOMM40, ZNF235, ZNF112, ZNF180, SNRPD2, VASP, TRAPPC6A","APP, AP000230.1, AP001596.6, CYYR1-AS1","BIN1, CYP27C1, SAP130","BLNK, ZDHHC16, DNTT, OPALIN","CASS4, RAE1","CD2AP-DT, CD2AP","MIR9-2HG, RASA1","MIR29B2CHG, CR1, CR1-AS1, DYRK3, CD55, RP11-343H5.4","CTSB, RP11-481A20.10","CTSH, HYKK, SH2D7","PRSS8, TLCD3B, DOC2A, TMEM219, NPIPB8, TAOK2, INO80E, ENSG00000285043, PRSS36, RP11-426C22.4, NPIPB11, SMG1P6, BOLA2, NPIPB12, SMG1P2, MAZ, SEZ6L2, ASPHD1, KCTD13, CTD-2574D22.2, HIRIP3, FAM57B, PPP4C, TBX6, YPEL3, RP11-455F5.3, GDPD3, RP11-455F5.4, RP11-455F5.6, MAPK3, SLX1A, NPIPB13, SMG1P5, MYLPF, AC002310.14, ZNF689, PRR14, SRCAP, CCDC189, ZNF629, SETD1A, HSD3B7, STX1B, RNF40, CD2BP2, MVP, CTF1, RP11-231C14.4, QPRT, CDIPT","ZYX, EPHA1-AS1, GSTK1, CASP2, EPHA1","GNPNAT1, PSMC6, FERMT2","GPATCH8, MPP3, ATXN7L3, DBF4B, ACBD4, RUNDC3A, GRN, FAM171A2, ITGA2B, GFAP, PLCD3, ASB16-AS1, HDAC5, G6PC3, FMNL1","HDAC2-AS2, HS3ST5, HDAC2","PCGF3, GAK, TMEM175, DGKQ, SLC26A1, IDUA, CRIPAK","NGEF, INPP5D","GPRC5B, IQCK, ENSG00000261312, KNOP1, ENSG00000290192, SYT17, RPS15A","JAZF1, JAZF1-AS1","TMEM259, CNN2, ABCA7, POLR2E, TCF3, ATP8B3, REXO1, KLF16, CTB-31O20.2","MYADM, SUV420H2, FIZ1, SHISA7, MBOAT7, LILRB2, TSEN34, RPS9","DRC3, MYO15A, ALKBH5, LLGL1, MIEF2, TOP3A, SHMT1, FLJ35934, USP32P2, CTD-2303H24.2, FAM106A, CCDC144B","EED, PICALM, TMEM135","PLEKHA1, HTRA1","ZNF276, CDK10, DBNDD1, TUBB8P7, FAM157C, ZNF778, GAS8","NDUFAF7, EIF2AK2, CEBPZOS, QPCT, PRKD3, RMDN2-AS1","MAPK9, TRIM7-AS2, TBC1D9B, MGAT1, GFPT2, RASGEF1C","RBCK1","RHOH, RFC1, N4BP2, RBM47","EGFR","SHARPIN, MROH1, ADCK5, ZNF707, GRINA, PARP10, DGAT1, RHPN1, ZNF517, RP11-661A12.8, LRRC24","SIGLEC11, SIGLEC16, VRK3","LACTB, RAB8B, APH1B, HERC1, FAM96A, SNX1, SNX22, CSNK1G1","SORL1","TMEM106B, THSD7A","TNIP1","DDX54, RITA1, IQCD, TPCN1, RP11-545P7.9, SLC8B1","RP11-182L21.6, ANXA11, MAT1A, DYDC2, FAM213A, TSPAN14, SFTPD, PPIF","BMPR2, FAM117B, ICA1L, KRT8P15, WDR12, CARF, NBEAL1","TLCD2, WDR81, SERPINF2","PPIAP55, ENSG00000265971","ADAM10, GCOM1, POLR2M, FAM63B","CD33, SHANK1, CLEC11A","C14orf80, IGH gene cluster","WWOX","ENSG00000235522, NCK2","NECAP1P1","ENSG00000261218, GCSH, RP11-960L18.1","OARD1, TREM1","SEPTIN4, TRIM37, PPM1E, MRPS23, MKS1","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""],["ABCA1","ABCA7","SPOP, ZNF652","ADAM17","NDUFS2, FCER1G","CCDC6","OTULIN","APH1B","ZNF234","APP","BIN1, CYP27C1","BLNK","CASS4","CD2AP-DT, CD2AP","RASA1","CR1, DYRK3","CTSB","CTSH","DOC2A, PPP4C, HIRIP3, TAOK2, KCTD13, YPEL3","CASP2, ZYX, GSTK1, EPHA1-AS1","FERMT2","GRN, ACBD4, GPATCH8, ITGA2B","HDAC2-AS2","DGKQ, IDUA","NGEF","KNOP1, GPRC5B, IQCK","JAZF1","REXO1","LILRB2","LLGL1, SHMT1, MIEF2, TOP3A","EED, PICALM","PLEKHA1","TUBB8P7","NDUFAF7, PRKD3, CEBPZOS","RASGEF1C, TBC1D9B","RBCK1","RFC1, RHOH","EGFR","SHARPIN","VRK3, SIGLEC11","SNX1","SORL1","TMEM106B","TNIP1","RITA1","TSPAN14, ANXA11, DYDC2","CARF, FAM117B, WDR12, NBEAL1, ICA1L, KRT8P15","WDR81, SERPINF2","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""],["","ADAT3, REXO1, MIER2","HOXB9, ZNF652-AS1","CYS1, HPCAL1","B4GALT3, DUSP12, ENSG00000132716, ENSG00000258465, ADAMTS4, TOMM40L, IGSF8","","OTULIN-DT","","ZNF285, ZNF227","LINC00158","","","CSTF1","","","","","","ENSG00000103472, ENSG00000284671, ENSG00000169682, ENSG00000261067, NFATC2IP, SH2B1, YPEL3-DT, NFATC2IP-AS1, LOC112694756","TAS2R60","","DHX8, UBTF, HEXIM2, ENSG00000291175, ENSG00000214425, chr17_44406051_44424348","MARCKS","FGFR3, CPLX1, ENSG00000293360, ENSG00000182903","CHRND","ACSM5, ERI2","","ENSG00000071655, ENSG00000267059, CBARP, REEP6, THOP1, ZNF555","19:54970660:54970717:clu_54852_NA, LILRB1, TTYH1, LILRA5, LAIR1","RASD1, MPRIP, GID4, ENSG00000170160, ENSG00000266302, FLII, ENSG00000179598, ENSG00000264187, ENSG00000262074, ENSG00000264940, PRPSAP2, TOM1L2","","CUZD1, PSTK, chr10_122428316_122429623","DRC4","","TRIM52-AS1","CSNK2A1","","VSTM2A, ENSG00000249773, ENSG00000178665, SLC25A5P3","","MED25","CIAO2A, SPG21, PARP16, TPM1, ENSG00000169118, ENSG00000259316","TECTA","","NDST1, GLRA1, CSF1R","DRC10","","CYP20A1, NOP58, ABI2, KIAA2012","MRM3, CCDC92B","ACE, CD79B, TLK2, TANC2, ERN1, POLG2, ENSG00000266173, ENSG00000125695, PRR29","BNIP2, ENSG00000137878, ENSG00000255529, SLTM","ASPDH, SIGLEC22P","PACS2, INF2, LOC124903398, IGHG1","MAF","","VPS41, EPDR1, AOAH, AOAH-IT1","","MOCS1, RPL23P6","TSPOAP1, TEX14, MIR142HG, ENSG00000266086, ENSG00000136450","","","","","","","","","","","","","","","","","","","","","","","","","","","chr21_25982477_26000014","","INTS11, UBE2J2, ATAD3A, CCNL2, TUBB8P11, RN7SL657P, LOC101928626, HES4, SSU72","","AXIN1, MRPL28, NME4, CCDC78, RAB40C, ARHGDIG, PGAP6","MTCH2, MDK, MADD, CELF1, CREB3L1, SLC39A13, C1QTNF4, NR1H3","CEBPA-DT, CEP89, CHST8, FAAP24, RN7SKP22","","CLU, DPYSL2, PTK2B, PNOC","","USP6NL","CDC42, EIF4G3, RAP1GAP, USP48, KIF17, PLA2G5, NBPF3, UBXN10, ALPL, WNT4, OTUD3, PLA2G2A, LOC117779438, ENSG00000285959, ENSG00000218510, ENSG00000289694, ENSG00000070831, HP1BP3","DOK3, KIAA1191, FAM193B, SIMC1, ARL10, CLTB, NSD1","HARS2, PFDN1, APBB3, TMCO6, PCDHB3, PCDHB5, CYSTM1, PCDHB12, SIL1, ANKHD1, ENSG00000131503, ENSG00000254996, UBE2D2, NRG2, MZB1, TAF7, PURA, PCDHB11, SNORA74A, PCDHA1, ENSG00000204970, ENSG00000204969, ENSG00000255408, ENSG00000204967, ENSG00000204965, ENSG00000081842, ENSG00000204963, ENSG00000204962, ENSG00000204961, ENSG00000250120, ENSG00000249158, ENSG00000251664, ENSG00000239389, ENSG00000248383, ENSG00000243232, LOC124900193, ANKHD1-DT, ENSG00000280987, ENSG00000015479, HBEGF","MICA, MICA-AS1","ICA1, GLCCI1","","NFAT5, AP1G1","CISD1, IPMK","STX1B, HSD3B7, BCL7C, CORO1A, GDPD3, STX4, BCKDK, KAT8, ITGAX, PPP4C, DOC2A, HIRIP3, TAOK2, TMEM219, PRR14, ZNF646, VKORC1, SEZ6L2, ASPHD1, PRSS36, SEPHS2, CFAP119, ENSG00000198064, ENSG00000183604, ENSG00000213599, ENSG00000261052, ZNF688, ENSG00000285043, ENSG00000149925, ENSG00000293487, ENSG00000214725, ITGAD, RNF40, SETD1A, ZNF668, chr16_30757654_30759177, chr16_31064481_31072739","BRSK1, PRKCG, COX6B2, TTYH1, FIZ1, chr19_54108395_54114441","ELL, HOMER3, ARMC6, LRRC25, NR2C2AP","DND1P1, HIGD1B, MAPK8IP1P1","","","TKFC, DDB1, FAM111A, PGA5","SLC35G2","","DHX33, RABEP1, ZZEF1, MYBBP1A, ZNF594-DT","RIN3, UNC79","","AP4E1, ATP8B4, DTWD1, DMXL2, LYSMD2, FGF7, FAM227B","DLGAP4, VSTM2L","INTS1, MAFK, PRKAR1B-AS1, MRM2, TMEM184A","LRATD2","CCNYL7, COG7, EARS2, GGA2, LOC124903667, RN7SKP23, UBFD1","","GTF2F1, KDM4B, RFX2, SAFB","AP4M1, AZGP1, STAG3, GIGYF1, TRIM4, CYP3A4, ZKSCAN5, LINC01007, LOC105375423, GNB2, LAMTOR4, SLC12A9"]],"container":"<table class=\"compact stripe\">\n  <thead>\n    <tr>\n      <th>locus<\/th>\n      <th>cohort<\/th>\n      <th>status<\/th>\n      <th>n_significant<\/th>\n      <th>n_ambiguous<\/th>\n      <th>results<\/th>\n      <th>literature<\/th>\n      <th>coincide<\/th>\n      <th>additional<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":20,"dom":"Bfrtip","buttons":["copy","csv"],"scrollX":true,"columnDefs":[{"name":"locus","targets":0},{"name":"cohort","targets":1},{"name":"status","targets":2},{"name":"n_significant","targets":3},{"name":"n_ambiguous","targets":4},{"name":"results","targets":5},{"name":"literature","targets":6},{"name":"coincide","targets":7},{"name":"additional","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true,"lengthMenu":[10,20,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Note</span>Como a convergência é calculada
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>Convergence</code> = at least one gene in common between the genes that colocalized on this analysis (<code>genes_significant</code>) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). <code>Divergence</code> = there’s literature for the locus, but none of the genes coincides. <code>No comparison</code> = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis).</p>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

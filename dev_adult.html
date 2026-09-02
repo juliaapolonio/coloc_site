@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Development vs Adult – AD Colocalization Atlas</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-9d28d9c504460864483fe04155c1dd77.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.12.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+<link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="site_libs/datatables-binding-0.34.0/datatables.js"></script>
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="site_libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="site_libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+<link href="site_libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+<script src="site_libs/nouislider-7.0.10/jquery.nouislider.min.js"></script>
+<link href="site_libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+<script src="site_libs/selectize-0.12.0/selectize.min.js"></script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">AD Colocalization Atlas</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Overview</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./manhattan.html"> 
+<span class="menu-text">Manhattan (interactive)</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./bubble_explorer.html"> 
+<span class="menu-text">Colocalization Explorer</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./dev_adult.html" aria-current="page"> 
+<span class="menu-text">Development vs Adult</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./cell_type.html"> 
+<span class="menu-text">Cell Type Specificity</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./locus_table.html"> 
+<span class="menu-text">Locus Table</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./previous_findings.html"> 
+<span class="menu-text">Previous Findings</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#all-dev-only-pairs" id="toc-all-dev-only-pairs" class="nav-link active" data-scroll-target="#all-dev-only-pairs">All dev-only pairs</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Development vs Adult</h1>
+<p class="subtitle lead">Each point is a locus|gene pair. Above the diagonal = stronger signal in development.</p>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-ba85ee8826656bb59a25" style="width:100%;height:696px;"></div>
+<script type="application/json" data-for="htmlwidget-ba85ee8826656bb59a25">{"x":{"visdat":{"29ad5de9c12b":["function () ","plotlyVisDat"],"29ad25e0e0df":["function () ","data"],"29ad48170111":["function () ","data"]},"cur_data":"29ad48170111","attrs":{"29ad5de9c12b":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":0,"y":0,"xend":1,"yend":1,"type":"scatter","mode":"lines","line":{"dash":"dot","color":"grey80"},"hoverinfo":"skip","showlegend":false,"inherit":true},"29ad25e0e0df":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"markers","color":{},"colors":["#7F8C8D","#B7C9DB","#C0392B"],"marker":{"size":8,"opacity":0.75},"text":{},"hoverinfo":"text","inherit":true},"29ad48170111":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":{},"y":{},"type":"scatter","mode":"markers+text","marker":{"size":13,"color":"#C0392B","line":{"color":"black","width":1}},"text":{},"textposition":"top center","hovertext":{},"hoverinfo":"text","showlegend":false,"name":"Destaque","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Best PP.H4 — Adult","range":[0,1]},"yaxis":{"domain":[0,1],"automargin":true,"title":"Best PP.H4 — Development","range":[0,1]},"legend":{"title":{"text":""}},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[0,1],"y":[0,1],"type":"scatter","mode":"lines","line":{"color":"grey80","dash":"dot"},"hoverinfo":["skip","skip"],"showlegend":false,"marker":{"color":"rgba(31,119,180,1)","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[0.99960169358821604,0.94342370944152998,0.90217292204968003,0.99999999987994703,0.99999999988358501,0.97128200697065503,0.88469867889916598,0.99353713651345998,0.97986425661190901,0.96513622490862905,0.97984029641237302,0.999999863143339,0.91907533949828502,0.96345843232547501,0.97113687454615705,0.885158034492879,0.99846983244049603,0.82616826070652405,0.95627412703626102,0.83735197267369499,0.89419385697971698,0.99863797829740497,0.99642501671439598,0.86435522375504903,0.99843274413142502,0.96017861924510495,0.99843344449282401,0.95789719746136603,0.99936264586077095,0.91726558043462403,0.91710782563006099,0.97740627023781501,0.851321146548353,0.99941826133770295,0.99374954513108504,0.99941673937956399,0.82988688512151598,0.920570967770315,0.85712564082712295,0.96525910890969802,0.99142952262742801,0.97800582387519597,0.90241184785089701,1,0.85016480296376995,0.98814374511351,0.930759393883964,0.99390652176074001,0.83770779296794895,0.80305366896293096,0.987933653716494,0.83774974040676897,0.91338263288507304,0.82283005258299602,1,0.99860688365274697,0.98073861010294505,0.99810895539974398,0.92844266703950995,0.90466586263341797,0.984562931976107,0.98697042098919596,0.86028612778297697,0.919381052297782,0.96623415832784798,0.999953336996528,0.99997009907613299,0.879429783464451,0.81244825176244095,0.90106514268157001,0.97916511096916403,0.92227595529855899,0.98968381807613104,0.97262324087624297,0.99196664583460903,0.99778864454754801,0.99948922286198705,0.98601174262917701,0.99669949112584699,0.96319678169106404,0.99976742377097205,0.99338791704417795,0.98738851679837403,0.96694803691781395,0.97910021346742804,0.85013015123313596,0.98698144368626695,0.98329153143542103,0.98161115675575095,0.98248187858957803,0.99055305798687499,0.97024024998802505,0.81961705006348395,0.81914919581823198,0.94829570641261995,0.999361484237133,0.96017368744610998,0.96945753658713096,0.96205358907729899,0.92702817507104596,0.89214566538303397,0.81227035689557303,0.90739942452477895,0.99936147055797697,0.89400231007627196,0.961064917954636,0.82377193595682896,0.99936146228504297,0.893600539958472,0.87063293398636499,0.92975842052231805,0.99868877737008299,0.999999967545535,0.98488984022605097,0.99999995855122903,0.99999994618676302,0.92738650785273602,0.95820041315788895,0.91704227354914603,0.99639209056383304,0.94353641492504403,0.94406674946608504,0.95360329282831902,0.95776001890329998,0.99999999978172105,0.99999999976716902,0.99037250362698404,0.99999999978172105,0.99999999978172105,0.90893150198813499,0.90061502545974403,0.99999999978172105,0.854252020507281,0.80438819966053599,0.93549798766130798,0.93266832382040699,0.98397693070084702,0.98397693653573803,0.85308225067938404,0.995756741816886,0.93833254986460901,0.97464086496654401,0.94979764002112199,0.96572850632678198,0.82514877020615296,0.80972502626654796,0.95710478340976601,0.84782548451275097,0.80960597512354604,0.92946577475770698,0.96494343907220204,0.96143940338849698,0.94051612385594996,0.96602841392608996,0.90492812123634003,0.93461657302720402,0.95071674413916296,0.98397698313610704,0.95687490098429195,0.99287359457601598,0.994685187896031,0.99177637049420997,0.96028951146002395,0.88098573804381497,0.925133278675908,0.80639898577180003,0.98041124446131001,0.92709284767808597,0.97936398621952303,0.96734805629911302,0.998730974579774,0.95458203337783698,0.99906119744889799,0.998709916171028,0.93011410844780895,0.95961296029424603,0.96445610699809503,0.96790582324380403,0.88480450757634499,0.85727769746746296,0.81320165721674598,0.87854081495299197,0.81791974179125604,0.95118753376453402,0.97884518773527396,0.98464831538501896,0.95034923107203395,0.977603091492531,0.98926540964705201,0.86073781256209003,0.99014289359417196,0.91769184936540904,0.94421750376255398,0.94616130024983602,0.94415088228990196,0.99859399873529597,0.88152913023641599,0.888212675598965,0.96527706351063902,0.82233333390206098,0.97055327293363103,0.98887658673877099,0.91048966748625004,0.83529011458092794,0.98192820962317895,0.97723063592283699,0.95979132953485902,0.98617380016362,0.98172623268033599,0.887012989459663,0.89237877679998001,0.88219412086460203,0.99266744525162298,0.94719522854492999,0.88702332233339298,0.83534328453971396,0.998773924975498,0.94789648569891705,0.96301511419431596,0.99020052825118199,0.99777875241675995,0.99874944719962599,0.84158486471002003,0.99168293630452098,0.87169699828657898,0.98993435322191403,0.98544496020542305,0.89550739351956399,0.87616339333450399,0.91811805661811297,0.96695089787424904,0.99193010311721797,0.99116901702399696,0.91593432464282598,0.91241145362734999,0.99641839668677501,0.80187467764474296,0.97261230193765902,0.80633046408657405,0.83447347415731299,0.95115117705072005,0.83449811612638503,0.99963338262285795,0.88792121447470995,0.96628530832237103,0.983389773387911,0.99772903935633905,0.94024630096950301,0.99999999983106103,0.82827145829401305,0.82116610594119699,0.99999999979627296,0.86292643816238701,0.89915162011384198,0.94155247332697201,0.91556192443735696,0.89881436946168203,0.81064329291744297,0.90304369834301601,0.898098209584414,0.92965890880295698,0.87311849843286704,0.89822264854215805,0.97808412830194502,0.89503428857395095,0.98555462058272403,0.99023380009922402,0.93200841463894502,0.99264265288757803,0.99185806134263699,0.95448411168541603,0.99860001919072705,0.99416038535788498,0.98037025067986205,0.97611187951921097,0.97165705444475903,0.93276605604262597,0.88212238399243303,0.89623428873272304,0.96473130731766199,0.86630169236922905,0.95206770997938295,0.96501480712503895,0.99715311322248101,0.93147213895681302,0.98784282860101802,0.80340248002181203,0.99664380648060302,0.99999133780625005,0.99952821916580603,0.98003357971214,0.89831214682738303,0.99066449585844796,0.90167003097660203,0.98626583603117102,0.99590592609418105,0.82608445832680699,0.90158756130645701,0.96506710055215805,0.99999999973079001,0.99320191816756098,0.96620245721246301,0.88911118298483305,0.988490148542848,0.80836115855020596,0.99799958808889899,0.89380082680902095,0.80836114400096104,0.99598923101878001,0.99822169600326105,0.902791356732077,0.898291898984105,0.92561818927213702,0.82467769198025298,0.98364423535314105,0.99437266421731596,0.99666381225615497,0.95800608977423996,0.96601891034994503,0.80633597183428896,0.81541815097913795,0.93349016654185202,0.93394612219044404,0.985000962698245,0.89512271295685597,0.81361825505565899,0.94738104339398799,0.83090591217676102,0.99993362407185604,0.83087589951610596,0.81085986935446897,0.91267009180730396,0.92361827615132597,0.96362107714766798,0.98481632250361695,0.88402898736310498,0.88402912991419802,0.99830576908818902,0.92171923645601705,0.99787722845805504,0.99830576833776496,0.83315636010534799,0.98297400370316901,0.98727723232953002,0.90270273693193304,0.97356398661006005,0.89270340852829599,0.80951069235373196,0.99098817381596005,0.83187205142883303,0.93556341227780804,0.91693366792209796,0.91516832003308801,0.91406505111940906,0.91315667805221801,0.93730333873161997,0.95238624092943402,0.95212825976962301,0.95807713230492098,0.95077882985825402,0.95515701082966897,0.939327812274101,0.97303237474733695,0.81415463727396697,0.95543423604612598,0.97639677831671901,0.99380344857956404,0.99460512600838602,0.96679320258532897,0.98380427651404401,1,0.92876912538962098,0.90683647583082405],"y":[0.20594539287271901,0.62676507188827502,0.036910784610146602,0.47985693442885902,0.36775030087560701,0,0.074489067115683594,0.421600003663471,0.036805648506369699,0,0,0.028196767001220899,0.064839794706942802,0.39671006597029201,0.123102677376769,0.081312694909892097,0,0.74845116867325001,0.00031216598734915999,0.0502555331460178,0.080214526194659394,0,0.028375351848018201,0.0749449604897265,0.25774376430878698,0,0.15152081948736201,0.0268791673606316,0.088537575516134004,0.0079172673348405394,0.012080106136220301,0.0030388380647311699,0.638344045763509,0.0189374814377988,0,0.0050889541712881804,0.0032469479731330299,0,0.0392923593010907,0.096437717837756107,0.25417928833635201,0.31383146342485202,0.25482785710011902,0.064846876093496694,0.073116487822930301,0.019159566115119198,0.090656551514025199,0.039607452601241599,0.075622983846695205,0,0.044547241745043098,0.32975639519707201,0.39992584809640602,0.023883694352251801,0.53511565087587698,0.050520154769060598,0.118598661019842,0.070170709724404506,0.083743773383109302,0,0.11074804533923401,0,0.065622555989986397,0.27645640680385503,0.35032094981300199,0.65426476796656696,0.216834689452337,0.36661369169352398,0.29367487602522002,0.041604266705870398,0.67030988297994898,0.098510083117594002,0.046081375449409601,0.13038922094605601,0.067359765860016504,0.045691509824239702,0.65540878358460197,0.0225806336244458,0.060425491204137503,0.11100315900857299,0,0.10420840031053701,0.72055727474043996,0,0,0.557682349871367,0.18682677744099899,0.103956195954321,0.0499113964327964,0.027747751445260101,0.19315862152702801,0.0131918455106448,0.78015331117460995,0.076330443110860693,0.057734560859993102,0.39392312000815299,0.0256854854714288,0.0067915595278382999,0,0,0.16610585730823399,0.195151517976353,0.030908864958035898,0.73696511091275496,0.049287637071200999,0,0,0.071030133892412403,0.052525322088625898,0.54535969425138597,0.038852771379936597,0.091812962302728701,0.034064523143851597,0.115620729423545,0,0.164256823758343,0.039141958979706203,0.081274551153467198,0.33144861403894599,0.0362204478358817,0.149125573981291,0.23008381711922599,0,0.108243822056411,0.22652890966311601,0.16147210239867801,0,0.086373372448278599,0.074334950868702204,0.205215420759153,0.060346241747427802,0,0.143104609755526,0.25017799650262101,0.17962015217677299,0.043326126082964898,0,0,0.12963228655791401,0.038116653876992597,0.036408036619755099,0.040924132442808597,0.067216059617088694,0.057597741274337498,0.26394443768768899,0.031074151723661,0.042062485289590001,0.083262173390736105,0.10326776282570101,0.412127187675146,0.243574804117344,0.061270334498391497,0.11597018085440999,0.052898465924201402,0.036858907802902803,0.024554392646488,0.018129846525202699,0.093678296364675201,0.036163948773131602,0.40705199819768101,0,0.54995119433265705,0.12829806893332099,0.79929376918967898,0.55815134974594505,0.44415340898185401,0.62021575488347602,0,0.27159646754577699,0.55528550162498302,0,0,0,0,0,0.055865530910773203,0.0112701622453301,0.12263139548947,0,0.15555657424317099,0.29506285665387699,0.042597114716147001,0.53590433821002503,0.0317315124874432,0,0.14929517374284301,0.049791877088688201,0.0702765632480222,0.262705313163487,0.045691316671664803,0.074010608566051794,0,0,0.057276206175913801,0.085480370822498999,0.033603086650039499,0.038339953917721603,0.022079855704734402,0,0,0.086374111411245499,0.188022462581108,0.178120162836617,0.0369659013651496,0.032039677818675401,0.218311707008118,0.069754352674419998,0.12886241634432699,0.14568946909991101,0.024337475141728099,0.12989196860392399,0.0085798465633138594,0.145175388603939,0.062001894631726402,0.16232693121502201,0.061839812949392697,0.068597566177037203,0.30518252850950001,0.16671335390681499,0.47043243545604002,0,0,0.21499363423638701,0,0.120464278584569,0.124012776548783,0.139306193531997,0.11831406324102101,0.077595739294019694,0.052776844533131202,0.0621964316237959,0.13629257152707899,0.11939651840462299,0,0.141980841216125,0.048089323539333297,0.067135541913244098,0,0.065072115877009395,0.13642436489364701,0.21797715517344801,0.142272559550843,0.079581359851145797,0.050072300407459497,0,0.085244513930595303,0.27097665195445902,0,0.110631965207315,0.093844202836203802,0,0.342235361268243,0,0,0.044762557230890301,0,0.17400465286253899,0.25487677054576002,0.16807714023046599,0.26746287555468401,0.14652273361858001,0.11715362976527401,0.025823811628271,0.256958605013899,0.079215195813516506,0.042559693613526503,0,0,0.0587027027365093,0.25689247736941501,0.48305833449069902,0.22204089381146,0,0.62738083707464598,0.10073690011929699,0,0.033352370784832601,0.66293178678239295,0.0036123672284789098,0,0.110856908118907,0.483561189615001,0.16895255739186699,0.18616156308526699,0.48827278642330901,0.170593132711226,0.11632721649573199,0.413012009023771,0.13071634382966599,0.034177761778690703,0.18790283852176401,0.082967780490806206,0.555549206807325,0.082322729281129006,0.148764961395453,0.070978068297993899,0.18788613999684201,0,0.18911572835933399,0.0054532879507535204,0.109450142225094,0.106681592810305,0,0,0.041711249223660103,0.10557534505932401,0.43102174952940298,0.37244704943250501,0.22331112480446699,0.089913178269237004,0.11858936252393799,0.43204657498982202,0.29142757122319801,0.355055637198193,0.472122774138025,0,0.13853220010777301,0,0.13850568940667399,0.23728570013167999,0.10406554746301,0.19464338592647901,0.028401246921632799,0.0020091524824464402,0.0228932908271333,0,0.0015820835068799501,0.19119954796536601,0.022902369769179198,0.493849851099399,0.00365305320832238,0,0.0029588613151690399,0.46374965147073699,0.095275844096278595,0.055797704059340203,0.102386867313344,0.0368166817049113,0,0.037265654296531503,0,0,0.65651099086068199,0.045738801563991197,0.057798811398222898,0.057964580618945501,0.74582119045212503,0.067411360902394801,0.045082119827563702,0.18184540460517701,0.12612793151867799,0.37921934070359697,0.625613363799844,0.63298782717045898,0.32061201825109598,0,0.0341283381041841,0.29770278132929601,0.034385312277837997,0.46131955041610401,0.091596588959673403,0.15280690521224599,0.0220215542460903,0.083170186954765399,0.092291452930404694,0.11078299746003201,0.38515336663431299,0,0.062420752996117303,0.20320381361446299,0,0.38982519106183899,0.27543343313881302],"type":"scatter","mode":"markers","marker":{"color":"rgba(102,194,165,1)","size":8,"opacity":0.75,"line":{"color":"rgba(102,194,165,1)"}},"text":["<b>ABCA1 | ABCA1<\/b><br>Adult: 1 | Dev: 0.206","<b>ABCA7 | ABCA7<\/b><br>Adult: 0.943 | Dev: 0.627","<b>ABCA7 | ADAT3<\/b><br>Adult: 0.902 | Dev: 0.037","<b>ABCA7 | MIER2<\/b><br>Adult: 1 | Dev: 0.48","<b>ABCA7 | REXO1<\/b><br>Adult: 1 | Dev: 0.368","<b>ABI3 | HOXB9<\/b><br>Adult: 0.971 | Dev: 0","<b>ABI3 | SPOP<\/b><br>Adult: 0.885 | Dev: 0.074","<b>ACE | ACE<\/b><br>Adult: 0.994 | Dev: 0.422","<b>ACE | CD79B<\/b><br>Adult: 0.98 | Dev: 0.037","<b>ACE | ENSG00000228979<\/b><br>Adult: 0.965 | Dev: 0","<b>ACE | ENSG00000266173<\/b><br>Adult: 0.98 | Dev: 0","<b>ACE | POLG2<\/b><br>Adult: 1 | Dev: 0.028","<b>ACE | PRR29<\/b><br>Adult: 0.919 | Dev: 0.065","<b>ACE | TANC2<\/b><br>Adult: 0.963 | Dev: 0.397","<b>ACE | TLK2<\/b><br>Adult: 0.971 | Dev: 0.123","<b>ADAM10 | BNIP2<\/b><br>Adult: 0.885 | Dev: 0.081","<b>ADAM10 | ENSG00000137878<\/b><br>Adult: 0.998 | Dev: 0","<b>ADAM10 | SLTM<\/b><br>Adult: 0.826 | Dev: 0.748","<b>ADAM17 | ADAM17<\/b><br>Adult: 0.956 | Dev: 0","<b>ADAM17 | CYS1<\/b><br>Adult: 0.837 | Dev: 0.05","<b>ADAM17 | HPCAL1<\/b><br>Adult: 0.894 | Dev: 0.08","<b>ADAMTS1 | chr21_25982477_26000014<\/b><br>Adult: 0.999 | Dev: 0","<b>ADAMTS4 | ADAMTS4<\/b><br>Adult: 0.996 | Dev: 0.028","<b>ADAMTS4 | B4GALT3<\/b><br>Adult: 0.864 | Dev: 0.075","<b>ADAMTS4 | DUSP12<\/b><br>Adult: 0.998 | Dev: 0.258","<b>ADAMTS4 | ENSG00000132716<\/b><br>Adult: 0.96 | Dev: 0","<b>ADAMTS4 | FCER1G<\/b><br>Adult: 0.998 | Dev: 0.152","<b>ADAMTS4 | IGSF8<\/b><br>Adult: 0.958 | Dev: 0.027","<b>ADAMTS4 | TOMM40L<\/b><br>Adult: 0.999 | Dev: 0.089","<b>AGRN | ATAD3A<\/b><br>Adult: 0.917 | Dev: 0.008","<b>AGRN | CCNL2<\/b><br>Adult: 0.917 | Dev: 0.012","<b>AGRN | ENSG00000269737<\/b><br>Adult: 0.977 | Dev: 0.003","<b>AGRN | HES4<\/b><br>Adult: 0.851 | Dev: 0.638","<b>AGRN | INTS11<\/b><br>Adult: 0.999 | Dev: 0.019","<b>AGRN | LOC101928626<\/b><br>Adult: 0.994 | Dev: 0","<b>AGRN | RN7SL657P<\/b><br>Adult: 0.999 | Dev: 0.005","<b>AGRN | SSU72<\/b><br>Adult: 0.83 | Dev: 0.003","<b>AGRN | TUBB8P11<\/b><br>Adult: 0.921 | Dev: 0","<b>AGRN | UBE2J2<\/b><br>Adult: 0.857 | Dev: 0.039","<b>ANK3 | CCDC6<\/b><br>Adult: 0.965 | Dev: 0.096","<b>ANKH/OTULIN | OTULIN<\/b><br>Adult: 0.991 | Dev: 0.254","<b>ANKH/OTULIN | OTULIN-DT<\/b><br>Adult: 0.978 | Dev: 0.314","<b>APOE | ZNF227<\/b><br>Adult: 0.902 | Dev: 0.255","<b>APOE | ZNF234<\/b><br>Adult: 1 | Dev: 0.065","<b>APP | APP<\/b><br>Adult: 0.85 | Dev: 0.073","<b>AXIN1 | ARHGDIG<\/b><br>Adult: 0.988 | Dev: 0.019","<b>AXIN1 | AXIN1<\/b><br>Adult: 0.931 | Dev: 0.091","<b>AXIN1 | CCDC78<\/b><br>Adult: 0.994 | Dev: 0.04","<b>AXIN1 | ENSG00000276931<\/b><br>Adult: 0.838 | Dev: 0.076","<b>AXIN1 | ENSG00000279930<\/b><br>Adult: 0.803 | Dev: 0","<b>AXIN1 | MRPL28<\/b><br>Adult: 0.988 | Dev: 0.045","<b>AXIN1 | NME4<\/b><br>Adult: 0.838 | Dev: 0.33","<b>AXIN1 | PGAP6<\/b><br>Adult: 0.913 | Dev: 0.4","<b>AXIN1 | RAB40C<\/b><br>Adult: 0.823 | Dev: 0.024","<b>BIN1 | BIN1<\/b><br>Adult: 1 | Dev: 0.535","<b>BIN1 | CYP27C1<\/b><br>Adult: 0.999 | Dev: 0.051","<b>BLNK | BLNK<\/b><br>Adult: 0.981 | Dev: 0.119","<b>CASS4 | CASS4<\/b><br>Adult: 0.998 | Dev: 0.07","<b>CASS4 | CSTF1<\/b><br>Adult: 0.928 | Dev: 0.084","<b>CD2AP | CD2AP-DT<\/b><br>Adult: 0.905 | Dev: 0","<b>CD33 | ASPDH<\/b><br>Adult: 0.985 | Dev: 0.111","<b>CD33 | SIGLEC22P<\/b><br>Adult: 0.987 | Dev: 0","<b>CELF1/SPI1 | C1QTNF4<\/b><br>Adult: 0.86 | Dev: 0.066","<b>CELF1/SPI1 | CELF1<\/b><br>Adult: 0.919 | Dev: 0.276","<b>CELF1/SPI1 | CREB3L1<\/b><br>Adult: 0.966 | Dev: 0.35","<b>CELF1/SPI1 | MADD<\/b><br>Adult: 1 | Dev: 0.654","<b>CELF1/SPI1 | MDK<\/b><br>Adult: 1 | Dev: 0.217","<b>CELF1/SPI1 | MTCH2<\/b><br>Adult: 0.879 | Dev: 0.367","<b>CELF1/SPI1 | NR1H3<\/b><br>Adult: 0.812 | Dev: 0.294","<b>CEP89 | CEBPA-DT<\/b><br>Adult: 0.901 | Dev: 0.042","<b>CEP89 | CEP89<\/b><br>Adult: 0.979 | Dev: 0.67","<b>CEP89 | CHST8<\/b><br>Adult: 0.922 | Dev: 0.099","<b>CLU/PTK2B | CLU<\/b><br>Adult: 0.99 | Dev: 0.046","<b>CLU/PTK2B | DPYSL2<\/b><br>Adult: 0.973 | Dev: 0.13","<b>CLU/PTK2B | ENSG00000253813<\/b><br>Adult: 0.992 | Dev: 0.067","<b>CLU/PTK2B | PNOC<\/b><br>Adult: 0.998 | Dev: 0.046","<b>CLU/PTK2B | PTK2B<\/b><br>Adult: 0.999 | Dev: 0.655","<b>COX7C | RASA1<\/b><br>Adult: 0.986 | Dev: 0.023","<b>CR1 | CR1<\/b><br>Adult: 0.997 | Dev: 0.06","<b>CR1 | DYRK3<\/b><br>Adult: 0.963 | Dev: 0.111","<b>CR1 | ENSG00000236911<\/b><br>Adult: 1 | Dev: 0","<b>CTSB | CTSB<\/b><br>Adult: 0.993 | Dev: 0.104","<b>DOC2A | DOC2A<\/b><br>Adult: 0.987 | Dev: 0.721","<b>DOC2A | ENSG00000103472<\/b><br>Adult: 0.967 | Dev: 0","<b>DOC2A | ENSG00000169682<\/b><br>Adult: 0.979 | Dev: 0","<b>DOC2A | HIRIP3<\/b><br>Adult: 0.85 | Dev: 0.558","<b>DOC2A | KCTD13<\/b><br>Adult: 0.987 | Dev: 0.187","<b>DOC2A | LOC112694756<\/b><br>Adult: 0.983 | Dev: 0.104","<b>DOC2A | NFATC2IP<\/b><br>Adult: 0.982 | Dev: 0.05","<b>DOC2A | NFATC2IP-AS1<\/b><br>Adult: 0.982 | Dev: 0.028","<b>DOC2A | PPP4C<\/b><br>Adult: 0.991 | Dev: 0.193","<b>DOC2A | SH2B1<\/b><br>Adult: 0.97 | Dev: 0.013","<b>DOC2A | YPEL3<\/b><br>Adult: 0.82 | Dev: 0.78","<b>EIF4G3 | ALPL<\/b><br>Adult: 0.819 | Dev: 0.076","<b>EIF4G3 | CDC42<\/b><br>Adult: 0.948 | Dev: 0.058","<b>EIF4G3 | EIF4G3<\/b><br>Adult: 0.999 | Dev: 0.394","<b>EIF4G3 | ENSG00000285794<\/b><br>Adult: 0.96 | Dev: 0.026","<b>EIF4G3 | ENSG00000285873<\/b><br>Adult: 0.969 | Dev: 0.007","<b>EIF4G3 | ENSG00000285959<\/b><br>Adult: 0.962 | Dev: 0","<b>EIF4G3 | ENSG00000289694<\/b><br>Adult: 0.927 | Dev: 0","<b>EIF4G3 | HP1BP3<\/b><br>Adult: 0.892 | Dev: 0.166","<b>EIF4G3 | KIF17<\/b><br>Adult: 0.812 | Dev: 0.195","<b>EIF4G3 | LOC117779438<\/b><br>Adult: 0.907 | Dev: 0.031","<b>EIF4G3 | NBPF3<\/b><br>Adult: 0.999 | Dev: 0.737","<b>EIF4G3 | OTUD3<\/b><br>Adult: 0.894 | Dev: 0.049","<b>EIF4G3 | PLA2G2A<\/b><br>Adult: 0.961 | Dev: 0","<b>EIF4G3 | PLA2G5<\/b><br>Adult: 0.824 | Dev: 0","<b>EIF4G3 | RAP1GAP<\/b><br>Adult: 0.999 | Dev: 0.071","<b>EIF4G3 | UBXN10<\/b><br>Adult: 0.894 | Dev: 0.053","<b>EIF4G3 | USP48<\/b><br>Adult: 0.871 | Dev: 0.545","<b>EIF4G3 | WNT4<\/b><br>Adult: 0.93 | Dev: 0.039","<b>EPHA1 | CASP2<\/b><br>Adult: 0.999 | Dev: 0.092","<b>EPHA1 | EPHA1-AS1<\/b><br>Adult: 1 | Dev: 0.034","<b>EPHA1 | GSTK1<\/b><br>Adult: 0.985 | Dev: 0.116","<b>EPHA1 | TAS2R60<\/b><br>Adult: 1 | Dev: 0","<b>EPHA1 | ZYX<\/b><br>Adult: 1 | Dev: 0.164","<b>FAM193B | ARL10<\/b><br>Adult: 0.927 | Dev: 0.039","<b>FAM193B | CLTB<\/b><br>Adult: 0.958 | Dev: 0.081","<b>FAM193B | DOK3<\/b><br>Adult: 0.917 | Dev: 0.331","<b>FAM193B | ENSG00000250909<\/b><br>Adult: 0.996 | Dev: 0.036","<b>FAM193B | KIAA1191<\/b><br>Adult: 0.944 | Dev: 0.149","<b>FAM193B | NSD1<\/b><br>Adult: 0.944 | Dev: 0.23","<b>FAM193B | SIMC1<\/b><br>Adult: 0.954 | Dev: 0","<b>FERMT2 | FERMT2<\/b><br>Adult: 0.958 | Dev: 0.108","<b>GRN | ACBD4<\/b><br>Adult: 1 | Dev: 0.227","<b>GRN | DHX8<\/b><br>Adult: 1 | Dev: 0.161","<b>GRN | ENSG00000291175<\/b><br>Adult: 0.99 | Dev: 0","<b>GRN | GPATCH8<\/b><br>Adult: 1 | Dev: 0.086","<b>GRN | HEXIM2<\/b><br>Adult: 1 | Dev: 0.074","<b>GRN | ITGA2B<\/b><br>Adult: 0.909 | Dev: 0.205","<b>GRN | UBTF<\/b><br>Adult: 0.901 | Dev: 0.06","<b>GRN | chr17_44406051_44424348<\/b><br>Adult: 1 | Dev: 0","<b>HBEGF | ANKHD1<\/b><br>Adult: 0.854 | Dev: 0.143","<b>HBEGF | ANKHD1-DT<\/b><br>Adult: 0.804 | Dev: 0.25","<b>HBEGF | APBB3<\/b><br>Adult: 0.935 | Dev: 0.18","<b>HBEGF | CYSTM1<\/b><br>Adult: 0.933 | Dev: 0.043","<b>HBEGF | ENSG00000131503<\/b><br>Adult: 0.984 | Dev: 0","<b>HBEGF | ENSG00000204970<\/b><br>Adult: 0.984 | Dev: 0","<b>HBEGF | ENSG00000254363<\/b><br>Adult: 0.853 | Dev: 0.13","<b>HBEGF | ENSG00000272070<\/b><br>Adult: 0.996 | Dev: 0.038","<b>HBEGF | ENSG00000272742<\/b><br>Adult: 0.938 | Dev: 0.036","<b>HBEGF | ENSG00000278907<\/b><br>Adult: 0.975 | Dev: 0.041","<b>HBEGF | ENSG00000280987<\/b><br>Adult: 0.95 | Dev: 0.067","<b>HBEGF | HARS2<\/b><br>Adult: 0.966 | Dev: 0.058","<b>HBEGF | HBEGF<\/b><br>Adult: 0.825 | Dev: 0.264","<b>HBEGF | LOC124900193<\/b><br>Adult: 0.81 | Dev: 0.031","<b>HBEGF | MZB1<\/b><br>Adult: 0.957 | Dev: 0.042","<b>HBEGF | NRG2<\/b><br>Adult: 0.848 | Dev: 0.083","<b>HBEGF | PCDHA1<\/b><br>Adult: 0.81 | Dev: 0.103","<b>HBEGF | PCDHB11<\/b><br>Adult: 0.929 | Dev: 0.412","<b>HBEGF | PCDHB12<\/b><br>Adult: 0.965 | Dev: 0.244","<b>HBEGF | PCDHB5<\/b><br>Adult: 0.961 | Dev: 0.061","<b>HBEGF | PFDN1<\/b><br>Adult: 0.941 | Dev: 0.116","<b>HBEGF | PURA<\/b><br>Adult: 0.966 | Dev: 0.053","<b>HBEGF | SIL1<\/b><br>Adult: 0.905 | Dev: 0.037","<b>HBEGF | SNORA74A<\/b><br>Adult: 0.935 | Dev: 0.025","<b>HBEGF | TAF7<\/b><br>Adult: 0.951 | Dev: 0.018","<b>HBEGF | TMCO6<\/b><br>Adult: 0.984 | Dev: 0.094","<b>HBEGF | UBE2D2<\/b><br>Adult: 0.957 | Dev: 0.036","<b>HLA | MICA<\/b><br>Adult: 0.993 | Dev: 0.407","<b>HLA | MICA-AS1<\/b><br>Adult: 0.995 | Dev: 0","<b>HS3ST5 | HDAC2-AS2<\/b><br>Adult: 0.992 | Dev: 0.55","<b>HS3ST5 | MARCKS<\/b><br>Adult: 0.96 | Dev: 0.128","<b>ICA1/UMAD1 | GLCCI1<\/b><br>Adult: 0.881 | Dev: 0.799","<b>ICA1/UMAD1 | ICA1<\/b><br>Adult: 0.925 | Dev: 0.558","<b>IDUA/DGKQ | CPLX1<\/b><br>Adult: 0.806 | Dev: 0.444","<b>IDUA/DGKQ | DGKQ<\/b><br>Adult: 0.98 | Dev: 0.62","<b>IDUA/DGKQ | ENSG00000293360<\/b><br>Adult: 0.927 | Dev: 0","<b>IDUA/DGKQ | FGFR3<\/b><br>Adult: 0.979 | Dev: 0.272","<b>IDUA/DGKQ | IDUA<\/b><br>Adult: 0.967 | Dev: 0.555","<b>IGH gene cluster-signal1 | ENSG00000258430<\/b><br>Adult: 0.999 | Dev: 0","<b>IGH gene cluster-signal1 | IGHG1<\/b><br>Adult: 0.955 | Dev: 0","<b>IGH gene cluster-signal1 | INF2<\/b><br>Adult: 0.999 | Dev: 0","<b>IGH gene cluster-signal1 | LOC124903398<\/b><br>Adult: 0.999 | Dev: 0","<b>IGH gene cluster-signal1 | PACS2<\/b><br>Adult: 0.93 | Dev: 0","<b>IL34/MTSS2 | AP1G1<\/b><br>Adult: 0.96 | Dev: 0.056","<b>IL34/MTSS2 | ENSG00000262140<\/b><br>Adult: 0.964 | Dev: 0.011","<b>IL34/MTSS2 | NFAT5<\/b><br>Adult: 0.968 | Dev: 0.123","<b>INPP5D | CHRND<\/b><br>Adult: 0.885 | Dev: 0","<b>INPP5D | NGEF<\/b><br>Adult: 0.857 | Dev: 0.156","<b>IPMK | CISD1<\/b><br>Adult: 0.813 | Dev: 0.295","<b>IPMK | ENSG00000228527<\/b><br>Adult: 0.879 | Dev: 0.043","<b>IPMK | IPMK<\/b><br>Adult: 0.818 | Dev: 0.536","<b>IQCK | ACSM5<\/b><br>Adult: 0.951 | Dev: 0.032","<b>IQCK | ENSG00000261312<\/b><br>Adult: 0.979 | Dev: 0","<b>IQCK | ERI2<\/b><br>Adult: 0.985 | Dev: 0.149","<b>IQCK | GPRC5B<\/b><br>Adult: 0.95 | Dev: 0.05","<b>IQCK | IQCK<\/b><br>Adult: 0.978 | Dev: 0.07","<b>JAZF1 | JAZF1<\/b><br>Adult: 0.989 | Dev: 0.263","<b>KAT8/BCKDK | ASPHD1<\/b><br>Adult: 0.861 | Dev: 0.046","<b>KAT8/BCKDK | CORO1A<\/b><br>Adult: 0.99 | Dev: 0.074","<b>KAT8/BCKDK | ENSG00000198064<\/b><br>Adult: 0.918 | Dev: 0","<b>KAT8/BCKDK | ENSG00000213599<\/b><br>Adult: 0.944 | Dev: 0","<b>KAT8/BCKDK | ENSG00000261474<\/b><br>Adult: 0.946 | Dev: 0.057","<b>KAT8/BCKDK | ENSG00000262721<\/b><br>Adult: 0.944 | Dev: 0.085","<b>KAT8/BCKDK | ENSG00000275371<\/b><br>Adult: 0.999 | Dev: 0.034","<b>KAT8/BCKDK | ENSG00000277543<\/b><br>Adult: 0.882 | Dev: 0.038","<b>KAT8/BCKDK | ENSG00000282034<\/b><br>Adult: 0.888 | Dev: 0.022","<b>KAT8/BCKDK | ENSG00000285043<\/b><br>Adult: 0.965 | Dev: 0","<b>KAT8/BCKDK | ENSG00000293487<\/b><br>Adult: 0.822 | Dev: 0","<b>KAT8/BCKDK | GDPD3<\/b><br>Adult: 0.971 | Dev: 0.086","<b>KAT8/BCKDK | HIRIP3<\/b><br>Adult: 0.989 | Dev: 0.188","<b>KAT8/BCKDK | HSD3B7<\/b><br>Adult: 0.91 | Dev: 0.178","<b>KAT8/BCKDK | ITGAD<\/b><br>Adult: 0.835 | Dev: 0.037","<b>KAT8/BCKDK | ITGAX<\/b><br>Adult: 0.982 | Dev: 0.032","<b>KAT8/BCKDK | KAT8<\/b><br>Adult: 0.977 | Dev: 0.218","<b>KAT8/BCKDK | PPP4C<\/b><br>Adult: 0.96 | Dev: 0.07","<b>KAT8/BCKDK | PRR14<\/b><br>Adult: 0.986 | Dev: 0.129","<b>KAT8/BCKDK | RNF40<\/b><br>Adult: 0.982 | Dev: 0.146","<b>KAT8/BCKDK | SEPHS2<\/b><br>Adult: 0.887 | Dev: 0.024","<b>KAT8/BCKDK | SETD1A<\/b><br>Adult: 0.892 | Dev: 0.13","<b>KAT8/BCKDK | SEZ6L2<\/b><br>Adult: 0.882 | Dev: 0.009","<b>KAT8/BCKDK | STX1B<\/b><br>Adult: 0.993 | Dev: 0.145","<b>KAT8/BCKDK | STX4<\/b><br>Adult: 0.947 | Dev: 0.062","<b>KAT8/BCKDK | TAOK2<\/b><br>Adult: 0.887 | Dev: 0.162","<b>KAT8/BCKDK | TMEM219<\/b><br>Adult: 0.835 | Dev: 0.062","<b>KAT8/BCKDK | VKORC1<\/b><br>Adult: 0.999 | Dev: 0.069","<b>KAT8/BCKDK | ZNF646<\/b><br>Adult: 0.948 | Dev: 0.305","<b>KAT8/BCKDK | ZNF668<\/b><br>Adult: 0.963 | Dev: 0.167","<b>KAT8/BCKDK | ZNF688<\/b><br>Adult: 0.99 | Dev: 0.47","<b>KAT8/BCKDK | chr16_30757654_30759177<\/b><br>Adult: 0.998 | Dev: 0","<b>KAT8/BCKDK | chr16_31064481_31072739<\/b><br>Adult: 0.999 | Dev: 0","<b>KLF16/REXO1 | CBARP<\/b><br>Adult: 0.842 | Dev: 0.215","<b>KLF16/REXO1 | ENSG00000071655<\/b><br>Adult: 0.992 | Dev: 0","<b>KLF16/REXO1 | REEP6<\/b><br>Adult: 0.872 | Dev: 0.12","<b>KLF16/REXO1 | REXO1<\/b><br>Adult: 0.99 | Dev: 0.124","<b>KLF16/REXO1 | THOP1<\/b><br>Adult: 0.985 | Dev: 0.139","<b>KLF16/REXO1 | ZNF555<\/b><br>Adult: 0.896 | Dev: 0.118","<b>LILRB1/LILRB4 | BRSK1<\/b><br>Adult: 0.876 | Dev: 0.078","<b>LILRB1/LILRB4 | COX6B2<\/b><br>Adult: 0.918 | Dev: 0.053","<b>LILRB1/LILRB4 | FIZ1<\/b><br>Adult: 0.967 | Dev: 0.062","<b>LILRB1/LILRB4 | PRKCG<\/b><br>Adult: 0.992 | Dev: 0.136","<b>LILRB1/LILRB4 | TTYH1<\/b><br>Adult: 0.991 | Dev: 0.119","<b>LILRB1/LILRB4 | chr19_54108395_54114441<\/b><br>Adult: 0.916 | Dev: 0","<b>LILRB2 | LAIR1<\/b><br>Adult: 0.912 | Dev: 0.142","<b>LILRB2 | LILRA5<\/b><br>Adult: 0.996 | Dev: 0.048","<b>LILRB2 | LILRB1<\/b><br>Adult: 0.802 | Dev: 0.067","<b>LILRB2 | LILRB2<\/b><br>Adult: 0.973 | Dev: 0","<b>LILRB2 | TTYH1<\/b><br>Adult: 0.806 | Dev: 0.065","<b>LRRC25 | ARMC6<\/b><br>Adult: 0.834 | Dev: 0.136","<b>LRRC25 | ELL<\/b><br>Adult: 0.951 | Dev: 0.218","<b>LRRC25 | HOMER3<\/b><br>Adult: 0.834 | Dev: 0.142","<b>LRRC25 | LRRC25<\/b><br>Adult: 1 | Dev: 0.08","<b>MAF | MAF<\/b><br>Adult: 0.888 | Dev: 0.05","<b>MAPT | DND1P1<\/b><br>Adult: 0.966 | Dev: 0","<b>MAPT | ENSG00000262265<\/b><br>Adult: 0.983 | Dev: 0.085","<b>MAPT | HIGD1B<\/b><br>Adult: 0.998 | Dev: 0.271","<b>MAPT | MAPK8IP1P1<\/b><br>Adult: 0.94 | Dev: 0","<b>MS4A | DDB1<\/b><br>Adult: 1 | Dev: 0.111","<b>MS4A | FAM111A<\/b><br>Adult: 0.828 | Dev: 0.094","<b>MS4A | PGA5<\/b><br>Adult: 0.821 | Dev: 0","<b>MS4A | TKFC<\/b><br>Adult: 1 | Dev: 0.342","<b>MYO15A/TOM1L2 | ENSG00000170160<\/b><br>Adult: 0.863 | Dev: 0","<b>MYO15A/TOM1L2 | ENSG00000179598<\/b><br>Adult: 0.899 | Dev: 0","<b>MYO15A/TOM1L2 | ENSG00000262074<\/b><br>Adult: 0.942 | Dev: 0.045","<b>MYO15A/TOM1L2 | ENSG00000262319<\/b><br>Adult: 0.916 | Dev: 0","<b>MYO15A/TOM1L2 | FLII<\/b><br>Adult: 0.899 | Dev: 0.174","<b>MYO15A/TOM1L2 | GID4<\/b><br>Adult: 0.811 | Dev: 0.255","<b>MYO15A/TOM1L2 | LLGL1<\/b><br>Adult: 0.903 | Dev: 0.168","<b>MYO15A/TOM1L2 | MIEF2<\/b><br>Adult: 0.898 | Dev: 0.267","<b>MYO15A/TOM1L2 | MPRIP<\/b><br>Adult: 0.93 | Dev: 0.147","<b>MYO15A/TOM1L2 | PRPSAP2<\/b><br>Adult: 0.873 | Dev: 0.117","<b>MYO15A/TOM1L2 | RASD1<\/b><br>Adult: 0.898 | Dev: 0.026","<b>MYO15A/TOM1L2 | TOM1L2<\/b><br>Adult: 0.978 | Dev: 0.257","<b>MYO15A/TOM1L2 | TOP3A<\/b><br>Adult: 0.895 | Dev: 0.079","<b>NME8 | AOAH<\/b><br>Adult: 0.986 | Dev: 0.043","<b>NME8 | AOAH-IT1<\/b><br>Adult: 0.99 | Dev: 0","<b>NME8 | ENSG00000178503<\/b><br>Adult: 0.932 | Dev: 0","<b>NME8 | EPDR1<\/b><br>Adult: 0.993 | Dev: 0.059","<b>NME8 | VPS41<\/b><br>Adult: 0.992 | Dev: 0.257","<b>PICALM | EED<\/b><br>Adult: 0.954 | Dev: 0.483","<b>PICALM | PICALM<\/b><br>Adult: 0.999 | Dev: 0.222","<b>PLCG2 | ENSG00000261218<\/b><br>Adult: 0.994 | Dev: 0","<b>PLEKHA1 | PLEKHA1<\/b><br>Adult: 0.98 | Dev: 0.627","<b>PLEKHA1 | PSTK<\/b><br>Adult: 0.976 | Dev: 0.101","<b>PLEKHA1 | chr10_122428316_122429623<\/b><br>Adult: 0.972 | Dev: 0","<b>PPP2R3A | SLC35G2<\/b><br>Adult: 0.933 | Dev: 0.033","<b>PRDM7 | DRC4<\/b><br>Adult: 0.882 | Dev: 0.663","<b>PRDM7 | ENSG00000261226<\/b><br>Adult: 0.896 | Dev: 0.004","<b>PRDM7 | TUBB8P7<\/b><br>Adult: 0.965 | Dev: 0","<b>PRKD3 | CEBPZOS<\/b><br>Adult: 0.866 | Dev: 0.111","<b>PRKD3 | NDUFAF7<\/b><br>Adult: 0.952 | Dev: 0.484","<b>PRKD3 | PRKD3<\/b><br>Adult: 0.965 | Dev: 0.169","<b>RASGEF1C | RASGEF1C<\/b><br>Adult: 0.997 | Dev: 0.186","<b>RASGEF1C | TBC1D9B<\/b><br>Adult: 0.931 | Dev: 0.488","<b>RASGEF1C | TRIM52-AS1<\/b><br>Adult: 0.988 | Dev: 0.171","<b>RBCK1 | CSNK2A1<\/b><br>Adult: 0.803 | Dev: 0.116","<b>RBCK1 | RBCK1<\/b><br>Adult: 0.997 | Dev: 0.413","<b>RHOH | RFC1<\/b><br>Adult: 1 | Dev: 0.131","<b>RHOH | RHOH<\/b><br>Adult: 1 | Dev: 0.034","<b>SCIMP/RABEP1 | DHX33<\/b><br>Adult: 0.98 | Dev: 0.188","<b>SCIMP/RABEP1 | MYBBP1A<\/b><br>Adult: 0.898 | Dev: 0.083","<b>SCIMP/RABEP1 | RABEP1<\/b><br>Adult: 0.991 | Dev: 0.556","<b>SCIMP/RABEP1 | ZNF594-DT<\/b><br>Adult: 0.902 | Dev: 0.082","<b>SCIMP/RABEP1 | ZZEF1<\/b><br>Adult: 0.986 | Dev: 0.149","<b>SEC61G/EGFR | EGFR<\/b><br>Adult: 0.996 | Dev: 0.071","<b>SEC61G/EGFR | ENSG00000249773<\/b><br>Adult: 0.826 | Dev: 0.188","<b>SEC61G/EGFR | SLC25A5P3<\/b><br>Adult: 0.902 | Dev: 0","<b>SEC61G/EGFR | VSTM2A<\/b><br>Adult: 0.965 | Dev: 0.189","<b>SHARPIN | SHARPIN<\/b><br>Adult: 1 | Dev: 0.005","<b>SIGLEC11 | MED25<\/b><br>Adult: 0.993 | Dev: 0.109","<b>SLC24A4/RIN3 | UNC79<\/b><br>Adult: 0.966 | Dev: 0.107","<b>SNX1/CIAO2A | ENSG00000169118<\/b><br>Adult: 0.889 | Dev: 0","<b>SNX1/CIAO2A | ENSG00000259258<\/b><br>Adult: 0.988 | Dev: 0","<b>SNX1/CIAO2A | ENSG00000275332<\/b><br>Adult: 0.808 | Dev: 0.042","<b>SNX1/CIAO2A | PARP16<\/b><br>Adult: 0.998 | Dev: 0.106","<b>SNX1/CIAO2A | SNX1<\/b><br>Adult: 0.894 | Dev: 0.431","<b>SNX1/CIAO2A | SPG21<\/b><br>Adult: 0.808 | Dev: 0.372","<b>SNX1/CIAO2A | TPM1<\/b><br>Adult: 0.996 | Dev: 0.223","<b>SORL1 | SORL1<\/b><br>Adult: 0.998 | Dev: 0.09","<b>SORL1 | TECTA<\/b><br>Adult: 0.903 | Dev: 0.119","<b>SPPL2A/USP8/USP50 | AP4E1<\/b><br>Adult: 0.898 | Dev: 0.432","<b>SPPL2A/USP8/USP50 | ATP8B4<\/b><br>Adult: 0.926 | Dev: 0.291","<b>SPPL2A/USP8/USP50 | DMXL2<\/b><br>Adult: 0.825 | Dev: 0.355","<b>SPPL2A/USP8/USP50 | DTWD1<\/b><br>Adult: 0.984 | Dev: 0.472","<b>SPPL2A/USP8/USP50 | ENSG00000259618<\/b><br>Adult: 0.994 | Dev: 0","<b>SPPL2A/USP8/USP50 | FAM227B<\/b><br>Adult: 0.997 | Dev: 0.139","<b>SPPL2A/USP8/USP50 | FGF7<\/b><br>Adult: 0.958 | Dev: 0","<b>SPPL2A/USP8/USP50 | LYSMD2<\/b><br>Adult: 0.966 | Dev: 0.139","<b>SRC | DLGAP4<\/b><br>Adult: 0.806 | Dev: 0.237","<b>SRC | VSTM2L<\/b><br>Adult: 0.815 | Dev: 0.104","<b>TMEM106B | TMEM106B<\/b><br>Adult: 0.933 | Dev: 0.195","<b>TMEM184A | INTS1<\/b><br>Adult: 0.934 | Dev: 0.028","<b>TMEM184A | MAFK<\/b><br>Adult: 0.985 | Dev: 0.002","<b>TMEM184A | MRM2<\/b><br>Adult: 0.895 | Dev: 0.023","<b>TMEM184A | PRKAR1B-AS1<\/b><br>Adult: 0.814 | Dev: 0","<b>TMEM184A | TMEM184A<\/b><br>Adult: 0.947 | Dev: 0.002","<b>TNIP1 | CSF1R<\/b><br>Adult: 0.831 | Dev: 0.191","<b>TNIP1 | GLRA1<\/b><br>Adult: 1 | Dev: 0.023","<b>TNIP1 | NDST1<\/b><br>Adult: 0.831 | Dev: 0.494","<b>TREM2 | MOCS1<\/b><br>Adult: 0.811 | Dev: 0.004","<b>TREM2 | RPL23P6<\/b><br>Adult: 0.913 | Dev: 0","<b>TRIB1 | LRATD2<\/b><br>Adult: 0.924 | Dev: 0.003","<b>TSPAN14 | ANXA11<\/b><br>Adult: 0.964 | Dev: 0.464","<b>TSPAN14 | TSPAN14<\/b><br>Adult: 0.985 | Dev: 0.095","<b>TSPOAP1 | ENSG00000266086<\/b><br>Adult: 0.884 | Dev: 0.056","<b>TSPOAP1 | ENSG00000266648<\/b><br>Adult: 0.884 | Dev: 0.102","<b>TSPOAP1 | ENSG00000274198<\/b><br>Adult: 0.998 | Dev: 0.037","<b>TSPOAP1 | ENSG00000276601<\/b><br>Adult: 0.922 | Dev: 0","<b>TSPOAP1 | ENSG00000278863<\/b><br>Adult: 0.998 | Dev: 0.037","<b>TSPOAP1 | MIR142HG<\/b><br>Adult: 0.998 | Dev: 0","<b>UBFD1 | CCNYL7<\/b><br>Adult: 0.833 | Dev: 0","<b>UBFD1 | EARS2<\/b><br>Adult: 0.983 | Dev: 0.657","<b>UBFD1 | ENSG00000257122<\/b><br>Adult: 0.987 | Dev: 0.046","<b>UBFD1 | ENSG00000259782<\/b><br>Adult: 0.903 | Dev: 0.058","<b>UBFD1 | GGA2<\/b><br>Adult: 0.974 | Dev: 0.058","<b>UBFD1 | LOC124903667<\/b><br>Adult: 0.893 | Dev: 0.746","<b>UBFD1 | UBFD1<\/b><br>Adult: 0.81 | Dev: 0.067","<b>VMAC | ENSG00000267314<\/b><br>Adult: 0.991 | Dev: 0.045","<b>VMAC | GTF2F1<\/b><br>Adult: 0.832 | Dev: 0.182","<b>VMAC | KDM4B<\/b><br>Adult: 0.936 | Dev: 0.126","<b>VMAC | RFX2<\/b><br>Adult: 0.917 | Dev: 0.379","<b>VMAC | SAFB<\/b><br>Adult: 0.915 | Dev: 0.626","<b>WDR12/ICA1L/CYP20A1 | ABI2<\/b><br>Adult: 0.914 | Dev: 0.633","<b>WDR12/ICA1L/CYP20A1 | CYP20A1<\/b><br>Adult: 0.913 | Dev: 0.321","<b>WDR12/ICA1L/CYP20A1 | ENSG00000224463<\/b><br>Adult: 0.937 | Dev: 0","<b>WDR12/ICA1L/CYP20A1 | FAM117B<\/b><br>Adult: 0.952 | Dev: 0.034","<b>WDR12/ICA1L/CYP20A1 | KIAA2012<\/b><br>Adult: 0.952 | Dev: 0.298","<b>WDR12/ICA1L/CYP20A1 | KRT8P15<\/b><br>Adult: 0.958 | Dev: 0.034","<b>WDR12/ICA1L/CYP20A1 | NBEAL1<\/b><br>Adult: 0.951 | Dev: 0.461","<b>WDR12/ICA1L/CYP20A1 | NOP58<\/b><br>Adult: 0.955 | Dev: 0.092","<b>WDR12/ICA1L/CYP20A1 | WDR12<\/b><br>Adult: 0.939 | Dev: 0.153","<b>WDR81/SERPINF2 | CCDC92B<\/b><br>Adult: 0.973 | Dev: 0.022","<b>WDR81/SERPINF2 | MRM3<\/b><br>Adult: 0.814 | Dev: 0.083","<b>WDR81/SERPINF2 | SERPINF2<\/b><br>Adult: 0.955 | Dev: 0.092","<b>WDR81/SERPINF2 | WDR81<\/b><br>Adult: 0.976 | Dev: 0.111","<b>ZCWPW1/NYAP1 | AZGP1<\/b><br>Adult: 0.994 | Dev: 0.385","<b>ZCWPW1/NYAP1 | CYP3A4<\/b><br>Adult: 0.995 | Dev: 0","<b>ZCWPW1/NYAP1 | GNB2<\/b><br>Adult: 0.967 | Dev: 0.062","<b>ZCWPW1/NYAP1 | LAMTOR4<\/b><br>Adult: 0.984 | Dev: 0.203","<b>ZCWPW1/NYAP1 | LINC01007<\/b><br>Adult: 1 | Dev: 0","<b>ZCWPW1/NYAP1 | SLC12A9<\/b><br>Adult: 0.929 | Dev: 0.39","<b>ZCWPW1/NYAP1 | TRIM4<\/b><br>Adult: 0.907 | Dev: 0.275"],"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"name":"Adult only","textfont":{"color":"rgba(102,194,165,1)"},"error_y":{"color":"rgba(102,194,165,1)"},"error_x":{"color":"rgba(102,194,165,1)"},"line":{"color":"rgba(102,194,165,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[0.89451546497600098,0.999967395859512,0.93007951079508,0.85077416075374401,0.99796089221782103,0.98328680123049295,0.83612482791084097,0.81500143314126805,0.99999999978316401,0.96139559041174405,0.96576597916505402,0.98786901314335795,0.99708854261209801,0.96639428710789499,0.97731752685110995,0.99993914474099599,0.92488603332085995,0.99780007880334498,0.95206271490112804,0.95519660698134801,0.96284240549167399,0.96179835537837399,0.98087450782296304],"y":[0.85179698310121399,0.98332046643629201,0.93519158844206196,0.93177453934516596,0.98124296310523995,0.82914988296236802,0.91205938570680201,0.811588726264872,0.88509079938961999,0.85247009642444704,0.89853602949115896,0.869495236795642,0.80314509517844901,0.88673829602654697,0.93938849667382196,0.90533286960540604,0.93579083796947704,0.99542487653460099,0.87860455313783503,0.94616291119433704,0.95434933365123598,0.86293337236444101,0.96369962863441505],"type":"scatter","mode":"markers","marker":{"color":"rgba(252,141,98,1)","size":8,"opacity":0.75,"line":{"color":"rgba(252,141,98,1)"}},"text":["<b>ADAMTS4 | NDUFS2<\/b><br>Adult: 0.895 | Dev: 0.852","<b>APH1B | APH1B<\/b><br>Adult: 1 | Dev: 0.983","<b>CD2AP | CD2AP<\/b><br>Adult: 0.93 | Dev: 0.935","<b>CD2AP | ENSG00000270761<\/b><br>Adult: 0.851 | Dev: 0.932","<b>CTSH | CTSH<\/b><br>Adult: 0.998 | Dev: 0.981","<b>DOC2A | TAOK2<\/b><br>Adult: 0.983 | Dev: 0.829","<b>DOC2A | YPEL3-DT<\/b><br>Adult: 0.836 | Dev: 0.912","<b>ECHDC3/USP6NL | USP6NL<\/b><br>Adult: 0.815 | Dev: 0.812","<b>GRN | GRN<\/b><br>Adult: 1 | Dev: 0.885","<b>HBEGF | PCDHB3<\/b><br>Adult: 0.961 | Dev: 0.852","<b>IQCK | KNOP1<\/b><br>Adult: 0.966 | Dev: 0.899","<b>KAT8/BCKDK | PRSS36<\/b><br>Adult: 0.988 | Dev: 0.869","<b>SIGLEC11 | SIGLEC11<\/b><br>Adult: 0.997 | Dev: 0.803","<b>SLC24A4/RIN3 | RIN3<\/b><br>Adult: 0.966 | Dev: 0.887","<b>SNX1/CIAO2A | CIAO2A<\/b><br>Adult: 0.977 | Dev: 0.939","<b>TNIP1 | TNIP1<\/b><br>Adult: 1 | Dev: 0.905","<b>TPCN1/RITA1/IQCD | RITA1<\/b><br>Adult: 0.925 | Dev: 0.936","<b>TSPOAP1 | TSPOAP1<\/b><br>Adult: 0.998 | Dev: 0.995","<b>UBFD1 | COG7<\/b><br>Adult: 0.952 | Dev: 0.879","<b>WDR12/ICA1L/CYP20A1 | CARF<\/b><br>Adult: 0.955 | Dev: 0.946","<b>WDR12/ICA1L/CYP20A1 | ICA1L<\/b><br>Adult: 0.963 | Dev: 0.954","<b>ZCWPW1/NYAP1 | AP4M1<\/b><br>Adult: 0.962 | Dev: 0.863","<b>ZCWPW1/NYAP1 | GIGYF1<\/b><br>Adult: 0.981 | Dev: 0.964"],"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"name":"Both","textfont":{"color":"rgba(252,141,98,1)"},"error_y":{"color":"rgba(252,141,98,1)"},"error_x":{"color":"rgba(252,141,98,1)"},"line":{"color":"rgba(252,141,98,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[0.65774861415695496,0.67087952153411701,0.45063416718419402,0,0.65349386906307705,0,0.17328188661399799,0,0.72131480899272205,0.33619573059879099,0.229814746042867,0,0.484569976294494,0.38253569764707501,0.17323856562543299,0.28442368361183601,0.35132570080546799,0.052003053080385699,0.79884727663952304,0,0.048361168541093,0.51953156486551499],"y":[0.94558344154638097,0.92659880498574398,0.92720567757837502,0.81842390087758399,0.854035906689941,0.81119368442008,0.82228942658016202,0.81504161525763796,0.93402912073259603,0.92373479399983804,0.89968756941147998,0.837731674810964,0.84636737924985395,0.88570333625502196,0.84122570278563502,0.88674100869222605,0.98081099013572404,0.84620131714588998,0.93985862329737102,0.92659729518283196,0.80290889969592605,0.81086566021295903],"type":"scatter","mode":"markers","marker":{"color":"rgba(141,160,203,1)","size":8,"opacity":0.75,"line":{"color":"rgba(141,160,203,1)"}},"text":["<b>ABI3 | ZNF652<\/b><br>Adult: 0.658 | Dev: 0.946","<b>ABI3 | ZNF652-AS1<\/b><br>Adult: 0.671 | Dev: 0.927","<b>APOE | ZNF285<\/b><br>Adult: 0.451 | Dev: 0.927","<b>APP | ENSG00000287109<\/b><br>Adult: 0 | Dev: 0.818","<b>CEP89 | FAAP24<\/b><br>Adult: 0.653 | Dev: 0.854","<b>CEP89 | RN7SKP22<\/b><br>Adult: 0 | Dev: 0.811","<b>FAM193B | FAM193B<\/b><br>Adult: 0.173 | Dev: 0.822","<b>HLA | ENSG00000204338<\/b><br>Adult: 0 | Dev: 0.815","<b>KAT8/BCKDK | BCL7C<\/b><br>Adult: 0.721 | Dev: 0.934","<b>KAT8/BCKDK | CFAP119<\/b><br>Adult: 0.336 | Dev: 0.924","<b>KAT8/BCKDK | DOC2A<\/b><br>Adult: 0.23 | Dev: 0.9","<b>LILRB2 | 19:54970660:54970717:clu_54852_NA<\/b><br>Adult: 0 | Dev: 0.838","<b>LRRC25 | NR2C2AP<\/b><br>Adult: 0.485 | Dev: 0.846","<b>PLEKHA1 | CUZD1<\/b><br>Adult: 0.383 | Dev: 0.886","<b>SIGLEC11 | VRK3<\/b><br>Adult: 0.173 | Dev: 0.841","<b>TPCN1/RITA1/IQCD | DRC10<\/b><br>Adult: 0.284 | Dev: 0.887","<b>TSPAN14 | DYDC2<\/b><br>Adult: 0.351 | Dev: 0.981","<b>TSPOAP1 | TEX14<\/b><br>Adult: 0.052 | Dev: 0.846","<b>UBFD1 | RN7SKP23<\/b><br>Adult: 0.799 | Dev: 0.94","<b>ZCWPW1/NYAP1 | LOC105375423<\/b><br>Adult: 0 | Dev: 0.927","<b>ZCWPW1/NYAP1 | STAG3<\/b><br>Adult: 0.048 | Dev: 0.803","<b>ZCWPW1/NYAP1 | ZKSCAN5<\/b><br>Adult: 0.52 | Dev: 0.811"],"hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"name":"Development only","textfont":{"color":"rgba(141,160,203,1)"},"error_y":{"color":"rgba(141,160,203,1)"},"error_x":{"color":"rgba(141,160,203,1)"},"line":{"color":"rgba(141,160,203,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[0.19451547784753101,0.075548350011561696,0.264314409650107,0.62693966251642397,0.099517170011071701],"y":[0.89981032163404295,0.80731937437071899,0.94997150155035703,0.94421796036069705,0.932092752251934],"type":"scatter","mode":"markers+text","marker":{"color":"#C0392B","size":13,"line":{"color":"black","width":1}},"text":["ERN1","LINC00158","SLC39A13","BCKDK","SHMT1"],"textposition":["top center","top center","top center","top center","top center"],"hovertext":["<b>ACE | ERN1<\/b><br>Adult: 0.195 | Dev: 0.9<br><i>prioritized candidate<\/i>","<b>APP | LINC00158<\/b><br>Adult: 0.076 | Dev: 0.807<br><i>prioritized candidate<\/i>","<b>CELF1/SPI1 | SLC39A13<\/b><br>Adult: 0.264 | Dev: 0.95<br><i>prioritized candidate<\/i>","<b>KAT8/BCKDK | BCKDK<\/b><br>Adult: 0.627 | Dev: 0.944<br><i>prioritized candidate<\/i>","<b>MYO15A/TOM1L2 | SHMT1<\/b><br>Adult: 0.1 | Dev: 0.932<br><i>prioritized candidate<\/i>"],"hoverinfo":["text","text","text","text","text"],"showlegend":false,"name":"Destaque","error_y":{"color":"rgba(148,103,189,1)"},"error_x":{"color":"rgba(148,103,189,1)"},"line":{"color":"rgba(148,103,189,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<section id="all-dev-only-pairs" class="level2">
+<h2 class="anchored" data-anchor-id="all-dev-only-pairs">All dev-only pairs</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-7310e5275ec66e6f8fda" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-7310e5275ec66e6f8fda">{"x":{"filter":"top","vertical":false,"filterHTML":"<tr>\n  <td data-type=\"character\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0.803\" data-max=\"0.981\" data-scale=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n  <td data-type=\"number\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none;position: absolute;width: 200px;opacity: 1\">\n      <div data-min=\"0\" data-max=\"0.799\" data-scale=\"3\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["TSPAN14 | DYDC2","CELF1/SPI1 | SLC39A13","ABI3 | ZNF652","KAT8/BCKDK | BCKDK","UBFD1 | RN7SKP23","KAT8/BCKDK | BCL7C","MYO15A/TOM1L2 | SHMT1","APOE | ZNF285","ABI3 | ZNF652-AS1","ZCWPW1/NYAP1 | LOC105375423","KAT8/BCKDK | CFAP119","ACE | ERN1","KAT8/BCKDK | DOC2A","TPCN1/RITA1/IQCD | DRC10","PLEKHA1 | CUZD1","CEP89 | FAAP24","LRRC25 | NR2C2AP","TSPOAP1 | TEX14","SIGLEC11 | VRK3","LILRB2 | 19:54970660:54970717:clu_54852_NA","FAM193B | FAM193B","APP | ENSG00000287109","HLA | ENSG00000204338","CEP89 | RN7SKP22","ZCWPW1/NYAP1 | ZKSCAN5","APP | LINC00158","ZCWPW1/NYAP1 | STAG3"],[0.981,0.95,0.946,0.944,0.9399999999999999,0.9340000000000001,0.9320000000000001,0.927,0.927,0.927,0.924,0.9,0.9,0.887,0.886,0.854,0.846,0.846,0.841,0.838,0.822,0.8179999999999999,0.8149999999999999,0.8110000000000001,0.8110000000000001,0.8070000000000001,0.803],[0.351,0.264,0.658,0.627,0.799,0.721,0.1,0.451,0.671,0,0.336,0.195,0.23,0.284,0.383,0.653,0.485,0.052,0.173,0,0.173,0,0,0,0.52,0.076,0.048]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>pair<\/th>\n      <th>Dev<\/th>\n      <th>Adult<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"scrollX":true,"columnDefs":[{"className":"dt-right","targets":[1,2]},{"name":"pair","targets":0},{"name":"Dev","targets":1},{"name":"Adult","targets":2}],"order":[],"autoWidth":false,"orderClasses":false,"orderCellsTop":true}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
