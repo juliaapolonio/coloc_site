@@ -11,8 +11,20 @@ execute:
 ---
 
 ```{r setup}
+pkgs <- c("data.table", "stringr", "plotly", "DT", "vroom", "jsonlite")
+to_install <- setdiff(pkgs, rownames(installed.packages()))
+if (length(to_install) > 0) install.packages(to_install, repos = "https://cloud.r-project.org")
 library(data.table); library(stringr); library(plotly); library(DT)
+library(vroom); library(jsonlite)
+
 THR <- 0.8
+
+# Tudo no painel de região precisa estar na MESMA build. O Song 2020 é hg38 e
+# o consensus_ADRD_withproxy usa base_pair_location (GWAS Catalog harmonizado,
+# GRCh38), então hg38 é a referência e o track de genes é pedido em hg38.
+GENOME <- "hg38"
+
+sumstats_file <- "data/consensus_ADRD_withproxy.tsv"
 
 collapse_events <- function(x, max_n = 6) {
   x <- unlist(str_split(as.character(x), ";"))
@@ -36,8 +48,7 @@ d[, region_chr := as.character(region_chr)]
 ## --- tipo de evento de splicing (Canonical, Exon Skipping, ...) --------------
 # Vem do sqtl_filtrado, não do coloc_all_annotated. Junção em dois níveis: o
 # splice_id é a chave exata do evento, mas ele nem sempre existe no
-# coloc_all_annotated (depende de quando o aggregate_coloc.R foi rodado); o
-# fallback por região+gene recupera o conjunto de eventos daquele par.
+# coloc_all_annotated; o fallback por região+gene recupera o conjunto de eventos.
 ev_path <- c("data/sqtl_filtrado", "data/sqtl_filtrado.tsv", "data/sqtl_filtrado.csv")
 ev_path <- ev_path[file.exists(ev_path)][1]
 
@@ -69,6 +80,20 @@ if (!is.na(ev_path)) {
 w <- dcast(d[, .(pp4 = max(PP.H4, na.rm = TRUE)), by = .(pair, stage)],
            pair ~ stage, value.var = "pp4", fill = 0)
 w <- w[Adult > THR | Dev > THR]
+
+## --- região de cada par ------------------------------------------------------
+# O dcast agrega por par e descarta as coordenadas; sem isso o clique não sabe
+# qual janela abrir. Pega a região da linha de PP.H4 máximo do par.
+chr_norm <- function(x) fifelse(str_detect(x, "^chr"), x, paste0("chr", x))
+
+reg <- d[!is.na(region_start) & !is.na(region_end)]
+setorder(reg, pair, -PP.H4)
+reg <- reg[, .SD[1], by = pair, .SDcols = c("region_chr", "region_start", "region_end")]
+reg[, region_key := paste0(chr_norm(region_chr), ":", region_start, "-", region_end)]
+
+w <- merge(w, reg[, .(pair, region_key)], by = "pair", all.x = TRUE)
+w[is.na(region_key), region_key := ""]
+
 w[, classe := fcase(Adult > THR & Dev > THR, "Both",
                     Dev > THR, "Development only",
                     default = "Adult only")]
@@ -104,6 +129,251 @@ w[, hover := paste0(
 destaque <- c("CELF1/SPI1 | SLC39A13", "KAT8/BCKDK | BCKDK", "MYO15A/TOM1L2 | SHMT1",
              "ACE | ERN1", "APP | LINC00158")
 w[, destacar := pair %in% destaque]
+
+# Só faz sentido abrir o painel fetal para pares com sinal em Dev.
+w[, browse_key := fifelse(Dev > THR, region_key, "")]
+w[, target_gene := str_remove(pair, "^.*\\| ")]
+```
+
+```{r regiao-payload}
+## ===========================================================================
+## Painel de região: Manhattan + arcos PLAC-seq (Song 2020) + track de genes
+## Tudo em hg38 e num único eixo x compartilhado, em Mb.
+## ===========================================================================
+
+HIC_DIR  <- "data/song_hic_data"
+CT_ORDER <- c("RG", "IPC", "eN", "iN")
+CT_COLOR <- list(RG = "#1EE500", IPC = "#47C5E5", eN = "#0428B8", iN = "#FF7E00")
+MAX_ARCS <- 40    # por região e tipo celular, ranqueados por score
+MAX_SNPS <- 900   # por região, depois do afinamento
+
+regions <- unique(w[browse_key != "", .(region_key)])
+regions[, chr   := str_extract(region_key, "^[^:]+")]
+regions[, start := as.numeric(str_extract(region_key, "(?<=:)[0-9]+"))]
+regions[, end   := as.numeric(str_extract(region_key, "[0-9]+$"))]
+
+## --- 1) arcos PLAC-seq -------------------------------------------------------
+# Arquivos longrange do WashU: 4 colunas, a última "chr:start-end,score".
+# Cada interação aparece duas vezes (uma por âncora), porque o formato precisa
+# ser ordenável/tabix-ável -- daí a deduplicação por ponto médio.
+read_longrange <- function(path) {
+  x <- fread(path, header = FALSE, showProgress = FALSE,
+             col.names = c("chr1", "start1", "end1", "target"))
+  tgt   <- tstrsplit(x$target, ",", fixed = TRUE)
+  coord <- tstrsplit(tgt[[1]], "[:-]")
+  data.table(
+    chr   = as.character(x$chr1),
+    mid1  = (x$start1 + x$end1) / 2,
+    chr2  = as.character(coord[[1]]),
+    mid2  = (as.numeric(coord[[2]]) + as.numeric(coord[[3]])) / 2,
+    score = suppressWarnings(as.numeric(tgt[[2]]))
+  )
+}
+
+hic_files <- list.files(HIC_DIR, pattern = "longrange", full.names = TRUE)
+arcs_json <- list()
+
+if (length(hic_files) > 0) {
+  hic <- rbindlist(lapply(hic_files, function(f) {
+    ct <- sub("\\..*$", "", basename(f))
+    read_longrange(f)[, ct := ct][]
+  }))
+  hic <- hic[chr == chr2 & !is.na(score)]
+  hic[, `:=`(lo = pmin(mid1, mid2), hi = pmax(mid1, mid2))]
+  hic <- unique(hic, by = c("ct", "chr", "lo", "hi"))
+  hic[, ct := factor(ct, levels = CT_ORDER)]
+  setkey(hic, chr)
+
+  arcs_dt_list <- list()
+  for (i in seq_len(nrow(regions))) {
+    rc <- regions$chr[i]; rs <- regions$start[i]; re <- regions$end[i]
+    if (!rc %in% hic$chr) next
+
+    # Pelo menos UMA âncora dentro da janela. Exigir as duas descartava
+    # justamente os contatos que saem do locus para um promotor distante, que
+    # são os interessantes; a ponta de fora fica marcada como parcial.
+    sel <- hic[.(rc)][(lo >= rs & lo <= re) | (hi >= rs & hi <= re)]
+    if (nrow(sel) == 0) next
+
+    sel[, partial := lo < rs | hi > re]
+    setorder(sel, ct, -score)
+    sel <- sel[, head(.SD, MAX_ARCS), by = ct]
+    sel[, region_key := regions$region_key[i]]
+    arcs_dt_list[[length(arcs_dt_list) + 1L]] <- copy(sel)
+
+    arcs_json[[regions$region_key[i]]] <-
+      lapply(split(sel, sel$ct, drop = TRUE), function(h)
+        list(x1 = round(h$lo / 1e6, 4), x2 = round(h$hi / 1e6, 4),
+             s = round(h$score, 2), p = as.integer(h$partial)))
+  }
+  arcs_dt <- if (length(arcs_dt_list)) rbindlist(arcs_dt_list) else NULL
+}
+if (!exists("arcs_dt")) arcs_dt <- NULL
+
+## --- 2) Manhattan local ------------------------------------------------------
+gwas_json <- list(); lead_map <- list(); gwas_lead <- list()
+
+if (file.exists(sumstats_file) && nrow(regions) > 0) {
+  gw <- vroom(sumstats_file,
+              col_select = c(chromosome, base_pair_location, p_value, rsid),
+              show_col_types = FALSE)
+  setDT(gw)
+  setnames(gw, c("chromosome", "base_pair_location", "p_value", "rsid"),
+           c("chr", "bp", "p", "snp"))
+  gw[, chr := paste0("chr", str_remove(as.character(chr), "^chr"))]
+  gw <- gw[!is.na(bp) & !is.na(p)]
+  min_p <- min(gw$p[gw$p > 0], na.rm = TRUE)
+  gw[p <= 0, p := min_p]
+  gw[, logp := -log10(p)]
+
+  regs <- regions[, .(chr, start, end, region_key)]
+  setkey(regs, chr, start, end)
+  snps <- gw[, .(chr, start = bp, end = bp, snp, logp)]
+  gsub_ <- foverlaps(snps, regs, type = "within", nomatch = NULL)
+
+  # foverlaps devolve as colunas de y (a REGIÃO) com o nome original e prefixa
+  # as de x com "i.". Então `start` aqui é o início da janela, não da variante --
+  # usar `start` como posição joga todos os SNPs em cima da borda esquerda.
+  gsub_[, bp := i.start]
+
+  # SNP líder do GWAS na janela: calculado ANTES do afinamento, senão uma
+  # janela sem sinal forte pode perder justamente o pico na subamostragem.
+  gl <- gsub_[order(region_key, -logp)][, .SD[1], by = region_key,
+                                        .SDcols = c("snp", "bp", "logp")]
+  gwas_lead <- lapply(seq_len(nrow(gl)), function(i)
+    list(snp = gl$snp[i], x = round(gl$bp[i] / 1e6, 5), y = round(gl$logp[i], 2)))
+  names(gwas_lead) <- gl$region_key
+
+  # Afinamento: mantém tudo que tem sinal e subamostra o fundo de forma
+  # sistemática (a cada k-ésima variante ordenada por posição), para o
+  # Manhattan continuar com a forma certa sem inchar o JSON da página.
+  thin_region <- function(g) {
+    top <- g[logp >= 3]
+    bg  <- g[logp <  3]
+    room <- max(0, MAX_SNPS - nrow(top))
+    if (nrow(bg) > room && room > 0) {
+      setorder(bg, bp)
+      bg <- bg[seq(1, nrow(bg), length.out = room)]
+    } else if (room == 0) bg <- bg[0]
+    rbind(top, bg)
+  }
+  gsub_ <- gsub_[, thin_region(.SD), by = region_key]
+
+  gwas_json <- lapply(split(gsub_, gsub_$region_key), function(g) {
+    setorder(g, bp)
+    list(x = round(g$bp / 1e6, 5), y = round(g$logp, 2), snp = g$snp)
+  })
+
+  # SNP líder do par: o variant_id da melhor coloc em Dev, posicionado pelo rsID
+  snp_col <- intersect(c("variant_id", "snp", "rsid", "top_snp", "lead_snp"), names(d))[1]
+  if (!is.na(snp_col)) {
+    ld <- d[PP.H4 > THR & stage == "Dev"]
+    if (nrow(ld) > 0) {
+      setorder(ld, pair, -PP.H4)
+      ld <- ld[, .(snp = as.character(get(snp_col))[1],
+                   ds  = dataset[1],
+                   pp4 = PP.H4[1]), by = pair]
+      ld <- merge(ld, unique(gw[, .(snp, bp, logp)]), by = "snp", all.x = TRUE)
+      ld <- ld[!is.na(bp)]
+      lead_map <- lapply(seq_len(nrow(ld)), function(i)
+        list(snp = ld$snp[i], x = round(ld$bp[i] / 1e6, 5),
+             y = round(ld$logp[i], 2),
+             ds = paste0(ld$ds[i], " · PP.H4 = ", round(ld$pp4[i], 3))))
+      names(lead_map) <- ld$pair
+    }
+  }
+  rm(gw); invisible(gc())
+}
+
+## --- 3) track de genes via API REST do UCSC ---------------------------------
+# Sem arquivo local: uma chamada por região, cacheada em RDS para o rebuild não
+# depender de rede. ncbiRefSeqSelect dá um transcrito representativo por gene,
+# que é o que se quer num track de referência.
+gene_cache <- file.path("data", paste0("cache_genes_", GENOME, ".rds"))
+genes_all  <- if (file.exists(gene_cache)) readRDS(gene_cache) else list()
+
+ucsc_genes <- function(chr, start, end, track = "ncbiRefSeqSelect") {
+  u <- sprintf(paste0("https://api.genome.ucsc.edu/getData/track?",
+                      "genome=%s;track=%s;chrom=%s;start=%.0f;end=%.0f"),
+               GENOME, track, chr, start, end)
+  r <- try(jsonlite::fromJSON(u), silent = TRUE)
+  if (inherits(r, "try-error")) return(NULL)
+  g <- r[[track]]
+  if (is.null(g)) return(NULL)
+  if (!is.data.frame(g) && is.list(g)) g <- g[[1]]
+  if (!is.data.frame(g) || nrow(g) == 0) return(NULL)
+  as.data.table(g)
+}
+
+parse_exons <- function(row) {
+  if (!is.null(row$exonStarts) && !is.na(row$exonStarts)) {
+    s <- as.numeric(strsplit(as.character(row$exonStarts), ",")[[1]])
+    e <- as.numeric(strsplit(as.character(row$exonEnds),   ",")[[1]])
+  } else if (!is.null(row$chromStarts) && !is.na(row$chromStarts)) {
+    off <- as.numeric(strsplit(as.character(row$chromStarts), ",")[[1]])
+    sz  <- as.numeric(strsplit(as.character(row$blockSizes), ",")[[1]])
+    s <- row$chromStart + off; e <- s + sz
+  } else return(NULL)
+  ok <- !is.na(s) & !is.na(e)
+  list(s = s[ok], e = e[ok])
+}
+
+# empacotamento guloso: genes que se sobrepõem vão para faixas diferentes
+pack_levels <- function(g, pad) {
+  setorder(g, start)
+  last <- numeric(0); lev <- integer(nrow(g))
+  for (i in seq_len(nrow(g))) {
+    k <- which(last < g$start[i] - pad)[1]
+    if (is.na(k)) { k <- length(last) + 1L }
+    last[k] <- g$end[i]; lev[i] <- k - 1L
+  }
+  g[, level := lev][]
+}
+
+for (i in seq_len(nrow(regions))) {
+  rk <- regions$region_key[i]
+  if (!is.null(genes_all[[rk]])) next
+  gg <- ucsc_genes(regions$chr[i], regions$start[i], regions$end[i])
+  if (is.null(gg)) { genes_all[[rk]] <- list(); next }
+
+  nm <- if ("name2" %in% names(gg)) gg$name2 else gg$name
+  gg[, `:=`(gene = as.character(nm),
+            start = as.numeric(chromStart), end = as.numeric(chromEnd))]
+  gg <- gg[!is.na(gene) & gene != ""]
+  gg <- gg[order(gene, -(end - start))][, .SD[1], by = gene]   # 1 linha por gene
+  if (nrow(gg) == 0) { genes_all[[rk]] <- list(); next }
+  gg <- pack_levels(gg, pad = (regions$end[i] - regions$start[i]) * 0.06)
+
+  genes_all[[rk]] <- lapply(seq_len(nrow(gg)), function(j) {
+    ex <- parse_exons(gg[j])
+    list(name   = gg$gene[j],
+         start  = round(gg$start[j] / 1e6, 5),
+         end    = round(gg$end[j]   / 1e6, 5),
+         strand = if ("strand" %in% names(gg)) as.character(gg$strand[j]) else ".",
+         level  = gg$level[j],
+         ex1    = if (is.null(ex)) numeric(0) else round(ex$s / 1e6, 5),
+         ex2    = if (is.null(ex)) numeric(0) else round(ex$e / 1e6, 5))
+  })
+}
+if (dir.exists("data")) saveRDS(genes_all, gene_cache)
+
+## --- 4) payload --------------------------------------------------------------
+regions_json <- lapply(seq_len(nrow(regions)), function(i)
+  list(chr = regions$chr[i],
+       start = round(regions$start[i] / 1e6, 5),
+       end   = round(regions$end[i]   / 1e6, 5)))
+names(regions_json) <- regions$region_key
+
+pairs_json <- lapply(seq_len(nrow(w)), function(i)
+  list(region = w$browse_key[i], gene = w$target_gene[i],
+       lead = lead_map[[w$pair[i]]]))
+names(pairs_json) <- w$pair
+
+payload <- list(pairs = pairs_json, regions = regions_json,
+                arcs = arcs_json, gwas = gwas_json, gwasLead = gwas_lead,
+                genes = genes_all,
+                order = CT_ORDER, colors = CT_COLOR,
+                maxArcs = MAX_ARCS, genome = GENOME)
 ```
 
 ```{r plot}
@@ -116,18 +386,367 @@ p <- plot_ly() |>
               hoverinfo = "skip", showlegend = FALSE) |>
   add_trace(data = w[destacar == FALSE], x = ~Adult, y = ~Dev, type = "scatter", mode = "markers",
             color = ~classe, colors = cores, marker = list(size = 8, opacity = 0.75),
-            text = ~hover, hoverinfo = "text") |>
+            customdata = ~pair,
+            text = ~paste0(hover, fifelse(browse_key != "",
+                                          "<br><i>click to open the locus panel</i>", "")),
+            hoverinfo = "text") |>
   add_trace(data = w[destacar == TRUE], x = ~Adult, y = ~Dev, type = "scatter", mode = "markers+text",
             marker = list(size = 13, color = "#C0392B", line = list(color = "black", width = 1)),
-            text = ~str_remove(pair, ".*\\| "), textposition = "top center",
+            text = ~target_gene, textposition = "top center",
+            customdata = ~pair,
             hovertext = ~paste0(hover, "<br><i>prioritized candidate</i>"),
             hoverinfo = "text", showlegend = FALSE, name = "Prioritized") |>
   layout(xaxis = list(title = "Best PP.H4 — Adult", range = c(0,1)),
          yaxis = list(title = "Best PP.H4 — Development", range = c(0,1)),
          hoverlabel = list(align = "left"),
          legend = list(title = list(text = "")))
+
+p <- htmlwidgets::onRender(p, "
+  function(el, x, data) {
+
+    // htmlwidgets serializa vetores de tamanho 1 como escalar; sem isso o
+    // laço quebra justamente nas regiões com um único elemento.
+    function asArr(v) { return v == null ? [] : (Array.isArray(v) ? v : [v]); }
+
+    var panel = document.getElementById('locus-panel');
+    var cap   = document.getElementById('locus-caption');
+    var GAP   = 0.035;
+
+    function draw(pairKey) {
+      var info = data.pairs[pairKey];
+      if (!info || !info.region) {
+        Plotly.purge(panel); panel.style.display = 'none';
+        cap.innerText = 'Adult-only pair — no fetal panel for this point.';
+        return;
+      }
+      var key = info.region, reg = data.regions[key];
+      if (!reg) {
+        Plotly.purge(panel); panel.style.display = 'none';
+        cap.innerText = 'No coordinates for this pair.';
+        return;
+      }
+
+      // pesos das faixas: GWAS, RG, IPC, eN, iN, genes
+      var rows = ['gwas'].concat(data.order).concat(['genes']);
+      var wts  = [2.2, 1, 1, 1, 1, 1.7];
+      var tot  = wts.reduce(function(a, b) { return a + b; }, 0);
+      var free = 1 - GAP * (rows.length - 1);
+      var tops = [], cur = 1;
+      wts.forEach(function(v) { var h = free * v / tot; tops.push([cur - h, cur]); cur -= (h + GAP); });
+
+      var traces = [], anns = [], layout = {}, shapes = [];
+      function axName(k) { return k === 0 ? 'yaxis' : 'yaxis' + (k + 1); }
+      function axRef(k)  { return k === 0 ? 'y'     : 'y'     + (k + 1); }
+
+      rows.forEach(function(r, k) {
+        layout[axName(k)] = {domain: tops[k], anchor: 'x', fixedrange: true,
+                             showgrid: false, zeroline: false};
+        anns.push({xref: 'paper', yref: 'paper', x: 0, xanchor: 'right',
+                   y: (tops[k][0] + tops[k][1]) / 2, yanchor: 'middle',
+                   text: r === 'gwas' ? '-log10 p' : (r === 'genes' ? 'genes' : r),
+                   showarrow: false,
+                   font: {size: 11, color: data.colors[r] || '#444'}});
+      });
+
+      // ---- faixa 1: Manhattan da região -------------------------------------
+      var gw = data.gwas[key];
+      if (gw) {
+        var gx = asArr(gw.x), gy = asArr(gw.y), gs = asArr(gw.snp);
+        traces.push({x: gx, y: gy, yaxis: 'y', type: 'scattergl', mode: 'markers',
+                     name: 'GWAS variants',
+                     marker: {color: '#12395C', size: 4, opacity: 0.55},
+                     text: gs.map(function(s, i) {
+                       return s + '<br>-log10 p = ' + gy[i]; }),
+                     hoverinfo: 'text', showlegend: true});
+        var ymax = Math.max.apply(null, gy.concat([8]));
+        layout.yaxis.range = [0, ymax * 1.15];
+        layout.yaxis.showticklabels = true;
+        layout.yaxis.tickfont = {size: 9};
+        shapes.push({type: 'line', xref: 'x', yref: 'y',
+                     x0: reg.start, x1: reg.end, y0: 7.301, y1: 7.301,
+                     line: {color: '#C0392B', width: 1, dash: 'dot'}});
+      } else {
+        layout.yaxis.showticklabels = false;
+      }
+
+      // Duas variantes destacadas, ambas na altura do p-valor do GWAS:
+      // o pico do GWAS na janela e a variante que colocalizou (lado QTL).
+      // A distância horizontal entre as duas é a informação interessante.
+      var gwl = data.gwasLead ? data.gwasLead[key] : null;
+      if (gwl) {
+        traces.push({x: [gwl.x], y: [gwl.y], yaxis: 'y',
+                     type: 'scatter', mode: 'markers',
+                     name: 'GWAS lead SNP',
+                     marker: {color: '#12395C', size: 11, symbol: 'star',
+                              line: {color: '#fff', width: 0.8}},
+                     text: ['<b>' + gwl.snp + '</b><br>GWAS lead SNP' +
+                            '<br>-log10 p = ' + gwl.y],
+                     hoverinfo: 'text', showlegend: true});
+        shapes.push({type: 'line', xref: 'x', yref: 'paper',
+                     x0: gwl.x, x1: gwl.x, y0: 0, y1: 1,
+                     line: {color: '#12395C', width: 1, dash: 'dot'}});
+      }
+      if (info.lead) {
+        traces.push({x: [info.lead.x], y: [info.lead.y], yaxis: 'y',
+                     type: 'scatter', mode: 'markers',
+                     name: 'Coloc variant (QTL)',
+                     marker: {color: '#E4A33C', size: 12, symbol: 'diamond',
+                              line: {color: '#333', width: 1}},
+                     text: ['<b>' + info.lead.snp + '</b><br>colocalization variant' +
+                            '<br>-log10 p (GWAS) = ' + info.lead.y +
+                            (info.lead.ds ? '<br>' + info.lead.ds : '')],
+                     hoverinfo: 'text', showlegend: true});
+        shapes.push({type: 'line', xref: 'x', yref: 'paper',
+                     x0: info.lead.x, x1: info.lead.x, y0: 0, y1: 1,
+                     line: {color: '#E4A33C', width: 1, dash: 'dash'}});
+      }
+
+      // ---- faixas 2-5: arcos PLAC-seq ---------------------------------------
+      var byCt = data.arcs[key] || {};
+      // Altura normalizada pela LARGURA DA JANELA, não pelo maior span da
+      // região: com arcos parciais o maior span pode ser muito maior que a
+      // janela e achataria todo o resto contra a linha de base.
+      var winW = reg.end - reg.start;
+
+      data.order.forEach(function(ct, j) {
+        var k = j + 1;
+        layout[axName(k)].range = [0, 1.15];
+        layout[axName(k)].showticklabels = false;
+        var src = byCt[ct];
+        if (!src) return;
+        var x1 = asArr(src.x1), x2 = asArr(src.x2),
+            sc = asArr(src.s),  pf = asArr(src.p);
+        var xs = [], ys = [], px = [], py = [], mx = [], my = [], tx = [], ex = [], ey = [];
+        for (var i = 0; i < x1.length; i++) {
+          var lo = x1[i], hi = x2[i];
+          var mid = (lo + hi) / 2, r = (hi - lo) / 2;
+          var h = Math.min((hi - lo) / winW, 1);
+          var isP = pf[i] === 1;
+          var X = isP ? px : xs, Y = isP ? py : ys;
+          for (var q = 0; q <= 24; q++) {
+            var t = Math.PI * (1 - q / 24);
+            X.push(mid + r * Math.cos(t)); Y.push(h * Math.sin(t));
+          }
+          X.push(null); Y.push(null);
+          if (mid >= reg.start && mid <= reg.end) { mx.push(mid); my.push(h); }
+          else { mx.push(null); my.push(null); }
+          tx.push('<b>' + ct + '</b><br>' + lo.toFixed(3) + ' &#8596; ' +
+                  hi.toFixed(3) + ' Mb<br>score = ' + sc[i] +
+                  (isP ? '<br><i>anchor outside the window</i>' : ''));
+          // marca na borda por onde o arco parcial sai
+          if (isP) {
+            if (lo < reg.start) { ex.push(reg.start); ey.push(0.04); }
+            if (hi > reg.end)   { ex.push(reg.end);   ey.push(0.04); }
+          }
+        }
+        traces.push({x: xs, y: ys, yaxis: axRef(k), type: 'scatter', mode: 'lines',
+                     line: {color: data.colors[ct], width: 1.1},
+                     connectgaps: false, hoverinfo: 'skip', showlegend: false});
+        traces.push({x: px, y: py, yaxis: axRef(k), type: 'scatter', mode: 'lines',
+                     line: {color: data.colors[ct], width: 1, dash: 'dot'},
+                     connectgaps: false, hoverinfo: 'skip', showlegend: false});
+        traces.push({x: ex, y: ey, yaxis: axRef(k), type: 'scatter', mode: 'markers',
+                     marker: {color: data.colors[ct], size: 7, symbol: 'triangle-right',
+                              opacity: 0.8},
+                     hoverinfo: 'skip', showlegend: false});
+        traces.push({x: mx, y: my, yaxis: axRef(k), type: 'scatter', mode: 'markers',
+                     marker: {color: data.colors[ct], size: 4, opacity: 0.9},
+                     text: tx, hoverinfo: 'text', showlegend: false});
+      });
+
+      // ---- faixa 6: genes ---------------------------------------------------
+      var gk = rows.length - 1;
+      var gl = asArr(data.genes[key]);
+      var maxLev = 0;
+      gl.forEach(function(g) { maxLev = Math.max(maxLev, g.level); });
+      layout[axName(gk)].range = [maxLev + 0.8, -0.8];   // nível 0 no topo
+      layout[axName(gk)].showticklabels = false;
+
+      var bx = [], by = [], ex = [], ey = [], tx2 = [], ty = [], tt = [];
+      var hx = [], hy = [], hex = [], hey = [];
+      gl.forEach(function(g) {
+        var isTarget = (g.name === info.gene);
+        var B = isTarget ? [hx, hy] : [bx, by];
+        var E = isTarget ? [hex, hey] : [ex, ey];
+        B[0].push(g.start, g.end, null); B[1].push(g.level, g.level, null);
+        var e1 = asArr(g.ex1), e2 = asArr(g.ex2);
+        for (var i = 0; i < e1.length; i++) {
+          E[0].push(e1[i], e2[i], null); E[1].push(g.level, g.level, null);
+        }
+        tx2.push((g.start + g.end) / 2); ty.push(g.level);
+        tt.push(g.name + (g.strand === '-' ? ' \\u25C0' : ' \\u25B6'));
+      });
+
+      traces.push({x: bx, y: by, yaxis: axRef(gk), type: 'scatter', mode: 'lines',
+                   line: {color: '#9AA5B1', width: 1}, connectgaps: false,
+                   hoverinfo: 'skip', showlegend: false});
+      traces.push({x: ex, y: ey, yaxis: axRef(gk), type: 'scatter', mode: 'lines',
+                   line: {color: '#5B6B7B', width: 7}, connectgaps: false,
+                   hoverinfo: 'skip', showlegend: false});
+      traces.push({x: hx, y: hy, yaxis: axRef(gk), type: 'scatter', mode: 'lines',
+                   line: {color: '#C0392B', width: 1.5}, connectgaps: false,
+                   hoverinfo: 'skip', showlegend: false});
+      traces.push({x: hex, y: hey, yaxis: axRef(gk), type: 'scatter', mode: 'lines',
+                   line: {color: '#C0392B', width: 9}, connectgaps: false,
+                   hoverinfo: 'skip', showlegend: false});
+      traces.push({x: tx2, y: ty, yaxis: axRef(gk), type: 'scatter', mode: 'text',
+                   text: tt, textposition: 'top center',
+                   textfont: {size: 9, color: '#333'},
+                   hoverinfo: 'skip', showlegend: false});
+
+      layout.xaxis = {title: reg.chr + ' (Mb, ' + data.genome + ')',
+                      range: [reg.start, reg.end], anchor: axRef(gk),
+                      zeroline: false, showgrid: false};
+      layout.annotations = anns;
+      layout.shapes = shapes;
+      layout.margin = {l: 70, r: 20, t: 44, b: 45};
+      layout.height = 670;
+      layout.hovermode = 'closest';
+      layout.showlegend = true;
+      layout.legend = {orientation: 'h', xanchor: 'right', x: 1,
+                       yanchor: 'bottom', y: 1.005,
+                       font: {size: 10}, bgcolor: 'rgba(0,0,0,0)'};
+
+      panel.style.display = 'block';
+      Plotly.react(panel, traces, layout, {displayModeBar: false, responsive: true});
+
+      var nArc = 0;
+      data.order.forEach(function(ct) { if (byCt[ct]) nArc += asArr(byCt[ct].x1).length; });
+      cap.innerText = pairKey + '  —  ' + key + ' (' + data.genome + ')' +
+        '  |  target gene highlighted in red' +
+        (gwl ? '  |  GWAS lead ' + gwl.snp : '') +
+        (info.lead ? '  |  coloc variant ' + info.lead.snp
+                   : '  |  coloc variant not found in sumstats') +
+        '  |  ' + nArc + ' PLAC-seq arcs (top ' + data.maxArcs + ' per cell type).';
+    }
+
+    el.on('plotly_click', function(ev) { draw(ev.points[0].customdata); });
+  }
+", data = payload)
 p
 ```
+
+## Locus panel
+
+Click a point with signal in development to open the region: local Manhattan
+with the colocalization lead SNP, cell-type-resolved PLAC-seq arcs from fetal
+cortex, and the gene track. Everything is on the same x axis in hg38, so the
+variant, the contacts and the target gene line up vertically.
+
+```{r locus-panel}
+htmltools::div(
+  htmltools::div(id = "locus-panel", style = "display:none; margin-top:8px;"),
+  htmltools::tags$p(id = "locus-caption",
+                    style = "color:#666; font-size:0.85rem; margin-top:6px;")
+)
+```
+
+
+## Hi-C support diagnostics {.unnumbered}
+
+::: {.callout-note collapse="true"}
+## Does the coloc variant actually contact the target gene?
+
+```{r hic-diagnostics}
+#| fig-height: 3.2
+
+TOL_TSS <- 10000   # âncora ↔ TSS (bp)
+TOL_VAR <- 10000   # âncora ↔ variante colocalizada (bp)
+TOL_ANC <- 5000    # sanidade: âncora ↔ qualquer TSS (bp)
+
+## --- TSS a partir do track de genes já cacheado do UCSC ---------------------
+tss_dt <- rbindlist(lapply(names(genes_all), function(rk) {
+  g <- genes_all[[rk]]
+  if (length(g) == 0) return(NULL)
+  data.table(
+    region_key = rk,
+    gene = vapply(g, function(x) x$name, character(1)),
+    tss  = vapply(g, function(x) if (identical(x$strand, "-")) x$end else x$start,
+                  numeric(1)) * 1e6)
+}), fill = TRUE)
+
+if (is.null(arcs_dt) || nrow(arcs_dt) == 0 || is.null(tss_dt) || nrow(tss_dt) == 0) {
+  cat("No arcs or no gene track available — diagnostics skipped.\n")
+} else {
+
+  ## --- sanidade 1: âncoras caem em promotor? --------------------------------
+  # PLAC-seq com H3K4me3 é ancorado em promotor por construção. Se esta fração
+  # for baixa, é sinal de coordenada deslocada, não de biologia.
+  anc <- rbind(arcs_dt[, .(region_key, pos = lo)],
+               arcs_dt[, .(region_key, pos = hi)])
+  anc <- merge(anc, tss_dt, by = "region_key", allow.cartesian = TRUE)
+  anc_hit <- anc[, .(hit = any(abs(pos - tss) <= TOL_ANC)), by = .(region_key, pos)]
+  frac_prom <- mean(anc_hit$hit)
+
+  ## --- sanidade 2: distribuição de span -------------------------------------
+  spans <- (arcs_dt$hi - arcs_dt$lo) / 1e3   # kb
+
+  ## --- suporte por par -------------------------------------------------------
+  sup <- w[browse_key != "", .(pair, region_key = browse_key, gene = target_gene)]
+  sup[, var_pos := vapply(pair, function(p) {
+    l <- lead_map[[p]]; if (is.null(l)) NA_real_ else l$x * 1e6 }, numeric(1))]
+  sup <- merge(sup, tss_dt, by.x = c("region_key", "gene"),
+               by.y = c("region_key", "gene"), all.x = TRUE)
+
+  check_pair <- function(rk, vp, tp) {
+    if (is.na(vp) || is.na(tp)) return(NA)
+    a <- arcs_dt[region_key == rk]
+    if (nrow(a) == 0) return(FALSE)
+    any((abs(a$lo - vp) <= TOL_VAR & abs(a$hi - tp) <= TOL_TSS) |
+        (abs(a$hi - vp) <= TOL_VAR & abs(a$lo - tp) <= TOL_TSS))
+  }
+  sup[, supported := mapply(check_pair, region_key, var_pos, tss)]
+
+  # distância mais curta entre a variante e qualquer âncora da região
+  sup[, min_d_kb := mapply(function(rk, vp) {
+    if (is.na(vp)) return(NA_real_)
+    a <- arcs_dt[region_key == rk]
+    if (nrow(a) == 0) return(NA_real_)
+    round(min(abs(c(a$lo, a$hi) - vp)) / 1e3, 1)
+  }, region_key, var_pos)]
+
+  n_tot <- nrow(sup)
+  n_ok  <- sum(sup$supported %in% TRUE)
+  n_na  <- sum(is.na(sup$supported))
+
+  cat(sprintf(paste0(
+    "**Sanity check 1 — anchors in promoters:** %.1f%% of arc anchors fall within ",
+    "%.0f kb of a TSS. PLAC-seq with H3K4me3 is promoter-anchored by design, so this ",
+    "should be high; a low value points at a coordinate shift rather than biology.\n\n",
+    "**Sanity check 2 — arc spans:** median %.0f kb, 5th percentile %.0f kb. ",
+    "MAPS discards very short contacts, so a floor around 20 kb is expected — ",
+    "promoter-proximal signals simply cannot produce an arc.\n\n",
+    "**Variant-to-target support:** %d of %d dev pairs (%.1f%%) have an arc joining ",
+    "the coloc variant (±%.0f kb) to the target gene TSS (±%.0f kb). ",
+    "%d pair(s) could not be evaluated (variant absent from the sumstats, or target ",
+    "gene absent from the UCSC track).\n\n"),
+    frac_prom * 100, TOL_ANC / 1e3,
+    median(spans), quantile(spans, 0.05),
+    n_ok, n_tot, 100 * n_ok / max(n_tot, 1),
+    TOL_VAR / 1e3, TOL_TSS / 1e3, n_na))
+
+  print(plot_ly(x = ~spans, type = "histogram", nbinsx = 50,
+                marker = list(color = "#1F6FB4")) |>
+          layout(xaxis = list(title = "Arc span (kb)"),
+                 yaxis = list(title = "arcs"),
+                 margin = list(t = 10, b = 45)))
+}
+```
+
+```{r hic-diagnostics-tabela}
+if (exists("sup") && nrow(sup) > 0) {
+  out <- sup[order(-supported %in% TRUE, min_d_kb),
+             .(pair, gene,
+               `variant (Mb)` = round(var_pos / 1e6, 4),
+               `target TSS (Mb)` = round(tss / 1e6, 4),
+               `nearest anchor (kb)` = min_d_kb,
+               supported = fifelse(is.na(supported), "not evaluable",
+                                   fifelse(supported, "yes", "no")))]
+  datatable(out, rownames = FALSE, filter = "top",
+            options = list(pageLength = 10, scrollX = TRUE))
+}
+```
+:::
 
 ## All dev-only pairs
 

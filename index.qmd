@@ -11,7 +11,7 @@ execute:
 ---
 
 ```{r setup}
-library(data.table); library(stringr)
+library(data.table); library(stringr); library(plotly)
 d <- fread("data/coloc_all_annotated.csv")
 d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
 d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
@@ -38,6 +38,332 @@ htmltools::div(
   kpi(sum(d$dataset %like% "^devbrain"), "tests in fetal brain datasets")
 )
 ```
+
+## Overview
+
+```{r donut-config}
+pkgs <- c("httr", "jsonlite")
+to_install <- setdiff(pkgs, rownames(installed.packages()))
+if (length(to_install) > 0) install.packages(to_install, repos = "https://cloud.r-project.org")
+library(httr); library(jsonlite)
+
+# ---------------------------------------------------------------
+# PARÂMETROS                                          ### AJUSTAR ###
+# ---------------------------------------------------------------
+locus_file    <- "data/lista_locus.csv"
+sumstats_file <- "data/consensus_ADRD_withproxy.tsv"
+windows_file  <- "data/windows_com_nome_locus.tsv"
+sqtl_file     <- "data/sqtl_filtrado"
+
+RARE_CUTOFF   <- 0.01     # MAF abaixo disso = rara
+VEP_CACHE     <- "data/cache_vep_hg38.rds"
+
+af_cands <- c("effect_allele_frequency", "eaf", "EAF", "maf", "MAF",
+              "minor_allele_frequency", "af", "AF", "freq")
+
+# Termos VEP que contam como codificante. splice_acceptor/donor entram porque
+# alteram o produto proteico; splice_region_variant não, porque na maioria dos
+# casos cai fora do sítio canônico e não muda a proteína.
+coding_terms <- c("missense_variant", "synonymous_variant", "stop_gained",
+                  "stop_lost", "stop_retained_variant", "start_lost",
+                  "start_retained_variant", "frameshift_variant",
+                  "inframe_insertion", "inframe_deletion",
+                  "protein_altering_variant", "coding_sequence_variant",
+                  "incomplete_terminal_codon_variant",
+                  "splice_acceptor_variant", "splice_donor_variant")
+
+pick <- function(nms, cands) { h <- intersect(cands, nms); if (length(h)) h[1] else NA_character_ }
+
+## --- VEP pela API REST do Ensembl -------------------------------------------
+# rest.ensembl.org serve GRCh38, que é a build do resto do site. São poucas
+# variantes (uma por locus sem colocalização), então cabe numa requisição só;
+# o cache em RDS evita bater na API a cada rebuild.
+vep_consequence <- function(rsids, cache_file = VEP_CACHE) {
+  cache <- if (file.exists(cache_file)) readRDS(cache_file) else list()
+  ids   <- unique(rsids[!is.na(rsids) & rsids != ""])
+  todo  <- setdiff(ids, names(cache))
+
+  for (chunk in split(todo, ceiling(seq_along(todo) / 180))) {
+    if (length(chunk) == 0) next
+    r <- try(POST("https://rest.ensembl.org/vep/human/id",
+                  content_type_json(), accept_json(),
+                  body = toJSON(list(ids = chunk), auto_unbox = FALSE)),
+             silent = TRUE)
+    if (inherits(r, "try-error") || status_code(r) != 200) next
+    out <- try(fromJSON(content(r, "text", encoding = "UTF-8"),
+                        simplifyDataFrame = TRUE), silent = TRUE)
+    if (inherits(out, "try-error") || !is.data.frame(out)) next
+    if (!all(c("input", "most_severe_consequence") %in% names(out))) next
+    for (i in seq_len(nrow(out))) cache[[out$input[i]]] <- out$most_severe_consequence[i]
+    Sys.sleep(0.25)
+  }
+  if (length(todo) > 0 && dir.exists(dirname(cache_file))) saveRDS(cache, cache_file)
+
+  vapply(rsids, function(sid) {
+    if (is.na(sid) || is.null(cache[[sid]])) NA_character_ else cache[[sid]]
+  }, character(1), USE.NAMES = FALSE)
+}
+```
+
+```{r donut-loci}
+#| fig-height: 6.2
+
+## --- 1) categoria de cada locus ---------------------------------------------
+# O denominador é o conjunto TESTADO, tirado do coloc_all_annotated -- a mesma
+# fonte dos KPIs acima. O lista_locus.csv tem mais linhas do que isso (inclui
+# loci de outras fontes e/ou repetidos), então usá-lo como total inflava a
+# contagem. Aqui ele entra só para a camada de literatura.
+L <- fread(locus_file)
+L <- L[!is.na(locus)]
+
+norm <- function(x) toupper(str_trim(as.character(x)))
+
+tested <- data.table(locus = unique(as.character(d$locus)))
+tested[, key := norm(locus)]
+
+L[, key := norm(locus)]
+L <- unique(L, by = "key")            # lista_locus pode repetir locus
+
+split_genes <- function(x) {
+  if (is.na(x) || x == "") return(character(0))
+  p <- str_trim(str_split(x, "[,;]")[[1]])
+  p[p != "" & !toupper(p) %in% c("NA", "NAN", "-")]
+}
+
+lit_cols <- intersect(c("bigbrain_eqtl", "bigbrain_sqtl", "genes_bellenguez",
+                        "singlebrain_results"), names(L))
+L[, lit := lapply(seq_len(.N), function(i)
+  Reduce(union, lapply(lit_cols, function(cc) split_genes(L[[cc]][i]))))]
+
+# Genes colocalizados vêm do próprio resultado, não da coluna genes_significant
+# do lista_locus: uma fonte só de verdade evita as duas divergirem.
+mine <- sig[, .(genes = list(unique(gene_symbol))), by = .(key = norm(locus))]
+
+M <- merge(tested, mine, by = "key", all.x = TRUE)
+M <- merge(M, L[, c("key", "lit", setdiff(names(L), c("key", "lit", "locus"))),
+                with = FALSE], by = "key", all.x = TRUE)
+M[, meus := lapply(genes, function(g) if (is.null(g)) character(0) else g)]
+M[, lit  := lapply(lit,   function(g) if (is.null(g)) character(0) else g)]
+M[, inter := Map(intersect, meus, lit)]
+
+n_unmatched <- sum(!L$key %in% tested$key)
+
+# Ordem importa: "não colocalizou" tem prioridade, senão um locus sem coloc e
+# sem literatura cairia em "sem registro prévio" e o donut deixaria de ser
+# uma partição do que foi testado.
+M[, cat := fcase(
+  lengths(meus)  == 0, "Not colocalized",
+  lengths(inter) >  0, "Colocalized · concordant",
+  lengths(lit)   >  0, "Colocalized · discordant",
+  default              = "Colocalized · no prior report")]
+
+CAT_ORDER <- c("Not colocalized", "Colocalized · concordant",
+               "Colocalized · discordant", "Colocalized · no prior report")
+CAT_COL   <- c("#B9C4CF", "#1F6FB4", "#C0392B", "#7FA96B")
+
+## --- 2) variante líder de cada locus, frequência e consequência ------------
+# A líder é definida pelo menor p dentro da janela do locus -- não depende de
+# nenhuma coluna extra existir no lista_locus.csv.
+nc <- M[cat == "Not colocalized"]
+nc[, freq_class := NA_character_]
+nc[, code_class := NA_character_]
+note_bits <- character(0)
+
+hdr    <- if (file.exists(sumstats_file)) names(fread(sumstats_file, nrows = 0)) else character(0)
+af_col <- pick(hdr, af_cands)
+
+if (nrow(nc) > 0 && file.exists(sumstats_file) && file.exists(windows_file)) {
+
+  win <- fread(windows_file)
+  win[, chr := as.integer(str_remove(as.character(chr), "^chr"))]
+  win[, key := norm(locus_name)]
+  win <- win[key %in% nc$key, .(chr, start, end, key)]
+  setkey(win, chr, start, end)
+
+  cols <- c("chromosome", "base_pair_location", "p_value", "rsid")
+  if (!is.na(af_col)) cols <- c(cols, af_col)
+  gw <- fread(sumstats_file, select = cols)
+  setnames(gw, c("chromosome", "base_pair_location", "p_value", "rsid"),
+           c("chr", "bp", "p", "snp"))
+  gw[, chr := suppressWarnings(as.integer(str_remove(as.character(chr), "^chr")))]
+  gw <- gw[!is.na(chr) & !is.na(bp) & !is.na(p)]
+
+  ov <- foverlaps(gw[, .(chr, start = bp, end = bp, snp, p,
+                         af = if (is.na(af_col)) NA_real_ else as.numeric(get(af_col)))],
+                  win, type = "within", nomatch = NULL)
+  # foverlaps mantém start/end da JANELA e prefixa os de x com "i."
+  ov[, bp := i.start]
+
+  lead <- ov[order(key, p)][, .SD[1], by = key, .SDcols = c("snp", "bp", "p", "af")]
+  nc <- merge(nc, lead, by = "key", all.x = TRUE)
+
+  if (!is.na(af_col)) {
+    # dobra para MAF: a coluna do sumstats é frequência do alelo de efeito,
+    # que pode ser a maior das duas
+    maf <- pmin(nc$af, 1 - nc$af)
+    nc[, freq_class := fifelse(is.na(maf), NA_character_,
+                               fifelse(maf < RARE_CUTOFF, "Rare", "Common"))]
+  } else {
+    note_bits <- c(note_bits, paste0("no allele-frequency column in ", sumstats_file))
+  }
+
+  csq <- vep_consequence(nc$snp)
+  if (all(is.na(csq))) {
+    note_bits <- c(note_bits, "Ensembl VEP REST returned nothing (offline or rate-limited)")
+  } else {
+    nc[, vep := csq]
+    nc[, code_class := fifelse(is.na(vep), NA_character_,
+                               fifelse(vep %in% coding_terms, "Coding", "Non-coding"))]
+  }
+} else if (nrow(nc) > 0) {
+  note_bits <- c(note_bits, "sumstats or windows file not found")
+}
+
+# Nada de anotação parcial silenciosa: o que não classificou vira "Unknown",
+# senão as fatias não somam o pai e o branchvalues="total" quebra.
+nc[is.na(freq_class), freq_class := "Unknown"]
+nc[is.na(code_class), code_class := "Unknown"]
+has_freq <- uniqueN(nc$freq_class) > 1 || nc$freq_class[1] != "Unknown"
+has_code <- uniqueN(nc$code_class) > 1 || nc$code_class[1] != "Unknown"
+
+## --- 3) monta a hierarquia do sunburst --------------------------------------
+# branchvalues = "total" exige que o valor do pai seja exatamente a soma dos
+# filhos, então cada nível só entra se a anotação cobrir o nível inteiro.
+sb <- data.table(
+  id     = c("root", CAT_ORDER),
+  label  = c(paste0("All tested loci<br>", nrow(M)), CAT_ORDER),
+  parent = c("", rep("root", length(CAT_ORDER))),
+  value  = c(nrow(M), sapply(CAT_ORDER, function(k) sum(M$cat == k))),
+  color  = c("#FFFFFF", CAT_COL)
+)
+
+FREQ_COL <- c(Rare = "#8899A8", Common = "#D6DEE6", Unknown = "#F0F0F0")
+CODE_COL <- c(Coding = "#5A6B7B", `Non-coding` = "#E8EDF2", Unknown = "#F5F5F5")
+
+if (nrow(nc) > 0 && has_freq) {
+  fr <- nc[, .N, by = freq_class]
+  sb <- rbind(sb, data.table(
+    id = paste0("nc_", fr$freq_class), label = fr$freq_class,
+    parent = "Not colocalized", value = fr$N,
+    color = unname(FREQ_COL[fr$freq_class])))
+
+  if (has_code) {
+    cc <- nc[, .N, by = .(freq_class, code_class)]
+    sb <- rbind(sb, data.table(
+      id = paste0("nc_", cc$freq_class, "_", cc$code_class), label = cc$code_class,
+      parent = paste0("nc_", cc$freq_class), value = cc$N,
+      color = unname(CODE_COL[cc$code_class])))
+  }
+} else if (nrow(nc) > 0 && has_code) {
+  cc <- nc[, .N, by = code_class]
+  sb <- rbind(sb, data.table(
+    id = paste0("nc_", cc$code_class), label = cc$code_class,
+    parent = "Not colocalized", value = cc$N,
+    color = unname(CODE_COL[cc$code_class])))
+}
+
+plot_ly(
+  ids = sb$id, labels = sb$label, parents = sb$parent, values = sb$value,
+  type = "sunburst", branchvalues = "total",
+  marker = list(colors = sb$color, line = list(color = "#FFFFFF", width = 1.5)),
+  insidetextorientation = "radial",
+  hovertemplate = "<b>%{label}</b><br>%{value} loci<br>%{percentRoot:.1%} of all loci<extra></extra>"
+) |>
+  layout(margin = list(t = 10, b = 10, l = 10, r = 10))
+```
+
+```{r nota-loci}
+#| output: asis
+if (n_unmatched > 0) {
+  cat("*", n_unmatched, " row(s) in `", locus_file, "` do not match any tested locus ",
+      "and were left out of the chart; the denominator is the ", nrow(M),
+      " loci present in `coloc_all_annotated.csv`.*\n\n", sep = "")
+}
+if (length(note_bits) > 0) {
+  cat("*Some inner rings could not be built: ", paste(note_bits, collapse = "; "),
+      ".*\n\n", sep = "")
+}
+cat("*Click a slice to zoom in. Non-colocalized loci are split by the minor allele ",
+    "frequency of their lead variant (rare < ", RARE_CUTOFF * 100,
+    "% MAF, taken from the consensus sumstats), then by whether the VEP most severe ",
+    "consequence is coding.*\n", sep = "")
+```
+
+```{r donut-eventos}
+#| fig-height: 6.2
+
+## --- pares significativos, classificados por tipo de QTL e por estágio ------
+ev <- copy(sig)
+ev[, qtl_type := fifelse(str_detect(dataset, regex("sqtl", ignore_case = TRUE)),
+                         "sQTL", "eQTL")]
+ev[, stage := fifelse(str_detect(dataset, regex("^devbrain_", ignore_case = TRUE)),
+                      "Development", "Adult")]
+
+pp <- ev[, .(
+  qtl = fcase(all(qtl_type == "eQTL"), "eQTL only",
+              all(qtl_type == "sQTL"), "sQTL only",
+              default = "Both QTL types"),
+  stg = fcase(all(stage == "Adult"),       "Adult only",
+              all(stage == "Development"), "Development only",
+              default = "Both stages")
+), by = .(locus, gene_symbol)]
+
+QTL_ORDER <- c("eQTL only", "sQTL only", "Both QTL types")
+QTL_COL   <- c("#1F6FB4", "#E4A33C", "#7F8C8D")
+STG_COL   <- c("Adult only" = "#B7C9DB", "Development only" = "#C0392B",
+               "Both stages" = "#8E9AA6")
+
+q <- pp[, .N, by = qtl][order(match(qtl, QTL_ORDER))]
+s <- pp[, .N, by = .(qtl, stg)]
+
+sb2 <- rbind(
+  data.table(id = "root", label = paste0("All pairs<br>", nrow(pp)),
+             parent = "", value = nrow(pp), color = "#FFFFFF"),
+  data.table(id = q$qtl, label = q$qtl, parent = "root", value = q$N,
+             color = QTL_COL[match(q$qtl, QTL_ORDER)]),
+  data.table(id = paste0(s$qtl, "_", s$stg), label = s$stg,
+             parent = s$qtl, value = s$N, color = unname(STG_COL[s$stg]))
+)
+
+plot_ly(
+  ids = sb2$id, labels = sb2$label, parents = sb2$parent, values = sb2$value,
+  type = "sunburst", branchvalues = "total",
+  marker = list(colors = sb2$color, line = list(color = "#FFFFFF", width = 1.5)),
+  insidetextorientation = "radial",
+  hovertemplate = "<b>%{label}</b><br>%{value} pairs<br>%{percentRoot:.1%} of all pairs<extra></extra>"
+) |>
+  layout(margin = list(t = 10, b = 10, l = 10, r = 10))
+```
+
+```{r donut-splicing}
+#| fig-height: 4.2
+
+## --- zoom no ramo de sQTL: que tipo de evento de splicing colocalizou -------
+# A unidade aqui é o evento (junção), não o par locus|gene, porque um mesmo par
+# pode ter mais de uma junção colocalizando -- contar por par apagaria isso.
+if (file.exists(sqtl_file)) {
+  sq <- fread(sqtl_file)
+  se <- sq[!is.na(splicing_event) & splicing_event != "", .N, by = splicing_event][order(-N)]
+
+  EV_COL <- c("Canonical" = "#1F6FB4", "Alternative Splice Site" = "#E4A33C",
+              "Novel Cryptic Junction" = "#C0392B", "Exon Skipping" = "#7FA96B")
+  cols <- unname(EV_COL[se$splicing_event])
+  cols[is.na(cols)] <- "#9AA5B1"
+
+  plot_ly(
+    labels = se$splicing_event, values = se$N, type = "pie", hole = 0.55,
+    marker = list(colors = cols, line = list(color = "#FFFFFF", width = 1.5)),
+    textinfo = "label+percent", textposition = "outside",
+    hovertemplate = "<b>%{label}</b><br>%{value} events<br>%{percent}<extra></extra>"
+  ) |>
+    layout(showlegend = FALSE,
+           annotations = list(list(text = paste0(sum(se$N), "<br>sQTL<br>events"),
+                                   showarrow = FALSE, font = list(size = 13))),
+           margin = list(t = 30, b = 30, l = 10, r = 10))
+}
+```
+
+*Zoom on the sQTL branch above: splicing event class of every junction that colocalized.*
 
 ## How to use it
 
