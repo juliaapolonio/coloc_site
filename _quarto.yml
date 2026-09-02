@@ -1,0 +1,37 @@
+project:
+  type: website
+  output-dir: _site
+  resources:
+    - "data/regional_plots/**"
+
+website:
+  title: "AD Colocalization Atlas"
+  description: "Multi-context functional atlas of Alzheimer's Disease GWAS loci"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Overview
+      - href: manhattan.qmd
+        text: Manhattan (interactive)
+      - href: bubble_explorer.qmd
+        text: Colocalization Explorer
+      - href: dev_adult.qmd
+        text: Development vs Adult
+      - href: cell_type.qmd
+        text: Cell Type Specificity
+      - href: locus_table.qmd
+        text: Locus Table
+      - href: previous_findings.qmd
+        text: Previous Findings
+
+
+format:
+  html:
+    theme: [flatly]
+    toc: true
+    page-layout: full
+    embed-resources: false
+    css: styles.css
+
+execute:
+  freeze: auto

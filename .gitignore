@@ -1,0 +1,10 @@
+# Saída renderizada -- o `quarto publish gh-pages` gerencia isso na branch
+# gh-pages separadamente; não precisa (nem deve) ir pra branch main.
+/_site/
+/.quarto/
+
+# Dados brutos: ficam só na sua máquina. São lidos pelo R no render, mas
+# nunca precisam estar versionados no git nem no site publicado -- o
+# consensus_ADRD_withproxy.tsv sozinho provavelmente estoura o limite de
+# 100MB por arquivo do GitHub.
+/data/

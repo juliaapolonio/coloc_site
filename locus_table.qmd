@@ -1,0 +1,44 @@
+---
+title: "Locus Table"
+subtitle: "A summary by locus: best gene, mecanism, cell type, context."
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r}
+library(data.table); library(stringr); library(DT)
+THR <- 0.8
+
+d <- fread("data/coloc_all_annotated.csv")
+d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
+d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+d[, family := fcase(
+  str_detect(dataset, regex("^gtex_", ignore_case = TRUE)),        "GTEx",
+  str_detect(dataset, regex("^bigbrain_", ignore_case = TRUE)),    "BigBrain",
+  str_detect(dataset, regex("^devbrain_", ignore_case = TRUE)),    "DevBrain",
+  str_detect(dataset, regex("^singlebrain_", ignore_case = TRUE)), "SingleBrain",
+  default = "Outro")]
+d[, mod := fifelse(str_detect(dataset, regex("_sqtl$", ignore_case = TRUE)), "sQTL", "eQTL")]
+
+sig <- d[PP.H4 > THR]
+
+top <- sig[order(-PP.H4), .SD[1], by = locus][, .(locus, top_gene = gene_symbol, top_pp4 = round(PP.H4,3), top_dataset = dataset)]
+resumo <- sig[, .(
+  n_genes = uniqueN(gene_symbol),
+  n_datasets = uniqueN(dataset),
+  mecanism = fifelse(uniqueN(mod) > 1, "eQTL + sQTL", mod[1]),
+  cell_type = fifelse(any(family == "SingleBrain"), "Sim", "Não"),
+  development = fifelse(any(family == "DevBrain"), "Sim", "Não")
+), by = locus]
+
+tab <- merge(top, resumo, by = "locus")
+setorder(tab, -top_pp4)
+
+datatable(tab, rownames = FALSE, filter = "top", extensions = "Buttons",
+          options = list(pageLength = 20, dom = "Bfrtip", buttons = c("copy","csv"), scrollX = TRUE))
+```

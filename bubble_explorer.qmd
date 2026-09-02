@@ -1,0 +1,122 @@
+---
+title: "Colocalization Explorer"
+subtitle: "Filter by locus and dataset family. Bubble size = PP.H4; color = significant (PP.H4 > 0.8)."
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+pkgs <- c("data.table", "stringr", "plotly", "crosstalk", "htmlwidgets")
+to_install <- setdiff(pkgs, rownames(installed.packages()))
+if (length(to_install) > 0) install.packages(to_install, repos = "https://cloud.r-project.org")
+library(data.table); library(stringr); library(plotly); library(crosstalk); library(htmlwidgets)
+
+THR <- 0.8
+
+d <- fread("data/coloc_all_annotated.csv")
+d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
+d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+d[, region_chr := as.character(region_chr)]
+
+# splice_id só existe se o aggregate_coloc.R já foi reprocessado com a
+# correção que preserva o id original do evento de sQTL. Se não existir,
+# cria como NA -- sem isso o fifelse() abaixo quebra, porque ele avalia os
+# dois ramos inteiros antes de escolher (não é lazy como um if comum).
+if (!"splice_id" %in% names(d)) d[, splice_id := NA_character_]
+
+d[, family := fcase(
+  str_detect(dataset, regex("^gtex_", ignore_case = TRUE)),        "GTEx",
+  str_detect(dataset, regex("^bigbrain_", ignore_case = TRUE)),    "BigBrain",
+  str_detect(dataset, regex("^devbrain_", ignore_case = TRUE)),    "DevBrain",
+  str_detect(dataset, regex("^singlebrain_", ignore_case = TRUE)), "SingleBrain",
+  default = "Outro")]
+
+simplify_label <- function(dataset, family) {
+  lbl <- str_remove(dataset, regex("^(gtex_|bigbrain_|devbrain_|singlebrain_)", ignore_case = TRUE))
+  lbl <- ifelse(family == "GTEx", str_remove(lbl, regex("^Brain_", ignore_case = TRUE)), lbl)
+  str_replace_all(lbl, "_", " ")
+}
+d[, dataset_label := simplify_label(dataset, family)]
+
+# 1 linha por (locus, gene, dataset): a própria linha do PP.H4 máximo --
+# ties.method = "first" é essencial aqui. O padrão do frank() é "average",
+# que dá rank 1.5 (não 1) quando duas linhas empatam no valor máximo -- e
+# nesse caso `rk == 1` não bate com nada, derrubando o grupo inteiro do
+# plot sem erro nem aviso.
+d[, rk := frank(-PP.H4, ties.method = "first"), by = .(locus, gene_symbol, dataset)]
+plot_dt <- d[rk == 1]
+
+keep <- plot_dt[PP.H4 > THR, .(locus, gene_symbol)]
+plot_dt <- merge(plot_dt, unique(keep), by = c("locus", "gene_symbol"))
+plot_dt[, significativo := fifelse(PP.H4 > THR, "Yes", "No")]
+
+plot_dt[, regional_file := fifelse(
+  significativo == "Yes",
+  paste0(dataset, "_",
+         fifelse(str_detect(dataset, "_sqtl$") & !is.na(splice_id), splice_id, gene_raw),
+         "_", region_chr, "_", region_start, "_", region_end, "_regional.png"),
+  NA_character_
+)]
+
+sd <- SharedData$new(plot_dt, key = ~paste(locus, gene_symbol, dataset), group = "explorer")
+```
+
+::: {.panel-sidebar}
+```{r filtros}
+bscols(
+  widths = 12,
+  filter_select("locus_f", "Locus", sd, ~locus, multiple = TRUE),
+  filter_checkbox("fam_f", "Família do dataset", sd, ~family, inline = TRUE)
+)
+```
+
+Tip: start typing the name of a locus (ex. `BIN1`, `KAT8`) — the plot is only legible with 1 to 3 loci selected.
+:::
+
+::: {.panel-fill}
+```{r plot}
+#| fig-height: 9
+
+p <- plot_ly(sd, x = ~dataset_label, y = ~gene_symbol,
+             size = ~PP.H4, sizes = c(20, 400),
+             color = ~significativo, colors = c("Yes" = "#1F6FB4", "No" = "#C8C8C8"),
+             customdata = ~regional_file,
+             text = ~paste0("<b>", locus, " | ", gene_symbol, "</b><br>",
+                            dataset, "<br>PP.H4 = ", round(PP.H4, 3)),
+             hoverinfo = "text", type = "scatter", mode = "markers") |>
+  layout(
+    xaxis = list(title = NULL, tickangle = -45),
+    yaxis = list(title = NULL),
+    legend = list(title = list(text = "PP.H4 > 0.8")),
+    margin = list(b = 140)
+  )
+
+p <- htmlwidgets::onRender(p, "
+  function(el, x) {
+    el.on('plotly_click', function(d) {
+      var fn = d.points[0].customdata;
+      var img = document.getElementById('regional-img');
+      var cap = document.getElementById('regional-caption');
+      if (!fn) { cap.innerText = 'Sem regional plot (não é significativo).'; img.style.display='none'; return; }
+      img.src = 'data/regional_plots/' + fn;
+      img.style.display = 'block';
+      img.onerror = function() { cap.innerText = 'Arquivo não encontrado: ' + fn; img.style.display='none'; };
+      img.onload = function() { cap.innerText = fn; };
+    });
+  }
+")
+p
+```
+
+```{r img-panel}
+htmltools::div(
+  htmltools::tags$img(id = "regional-img", style = "max-width:100%; display:none; margin-top:12px;"),
+  htmltools::tags$p(id = "regional-caption", style = "color:#666; font-size:0.85rem;")
+)
+```
+:::

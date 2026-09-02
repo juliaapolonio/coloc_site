@@ -1,0 +1,107 @@
+---
+title: "Regional Plots"
+subtitle: "Gerados automaticamente pelo nf_coloc para todo resultado com PP.H4 > 0.8."
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(data.table); library(stringr); library(DT)
+
+d <- fread("data/coloc_all_annotated.csv")
+d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
+d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+d[, region_chr := as.character(region_chr)]
+tem_splice_id <- "splice_id" %in% names(d)
+
+## ---------------------------------------------------------------
+## 1) Listar e parsear os arquivos
+##    padrão: {dataset}_{id}_{chr}_{start}_{end}_regional.png
+##    ex.: singlebrain_opc_ENSG00000103496.15_16_30861250_31361250_regional.png
+## ---------------------------------------------------------------
+plots_dir <- "data/regional_plots"
+files <- if (dir.exists(plots_dir)) list.files(plots_dir, pattern = "_regional\\.png$") else character(0)
+
+# datasets conhecidos, do mais longo pro mais curto -- pra casar o prefixo
+# mais específico primeiro (ex. "singlebrain_opc" antes de um "singlebrain_o"
+# hipotético) e não cortar o nome do dataset no lugar errado
+datasets_conhecidos <- unique(d$dataset)
+datasets_conhecidos <- datasets_conhecidos[order(-nchar(datasets_conhecidos))]
+
+parse_one <- function(fn) {
+  m <- str_match(fn, "^(.*)_([0-9XYM]+)_([0-9]+)_([0-9]+)_regional\\.png$")
+  if (is.na(m[1, 2])) return(NULL)
+  rest <- m[1, 2]
+  ds <- datasets_conhecidos[str_starts(rest, paste0(datasets_conhecidos, "_"))][1]
+  id <- if (!is.na(ds)) str_remove(rest, paste0("^", ds, "_")) else rest
+  data.table(file = fn, dataset = ds, id = id,
+             chr = m[1, 3], start = as.integer(m[1, 4]), end = as.integer(m[1, 5]))
+}
+parsed <- rbindlist(lapply(files, parse_one), fill = TRUE)
+
+## ---------------------------------------------------------------
+## 2) Casar com locus/gene/PP.H4 -- por gene_raw OU splice_id
+## ---------------------------------------------------------------
+if (nrow(parsed) > 0) {
+  cand <- d[, .(dataset, region_chr, region_start, region_end, gene_raw,
+               splice_id = if (tem_splice_id) splice_id else NA_character_,
+               locus, gene_symbol, PP.H4)]
+
+  m1 <- unique(cand, by = c("dataset", "region_chr", "region_start", "region_end", "gene_raw"))
+  m1[, key := paste(dataset, region_chr, region_start, region_end, gene_raw)]
+
+  m2 <- unique(cand[!is.na(splice_id)],
+               by = c("dataset", "region_chr", "region_start", "region_end", "splice_id"))
+  if (nrow(m2) > 0) m2[, key := paste(dataset, region_chr, region_start, region_end, splice_id)]
+
+  parsed[, key := paste(dataset, chr, start, end, id)]
+  parsed <- merge(parsed, m1[, .(key, locus1 = locus, gene1 = gene_symbol, pp1 = PP.H4)],
+                  by = "key", all.x = TRUE)
+  if (nrow(m2) > 0) {
+    parsed <- merge(parsed, m2[, .(key, locus2 = locus, gene2 = gene_symbol, pp2 = PP.H4)],
+                    by = "key", all.x = TRUE)
+  } else {
+    parsed[, `:=`(locus2 = NA_character_, gene2 = NA_character_, pp2 = NA_real_)]
+  }
+  parsed[, `:=`(
+    locus = fifelse(!is.na(locus1), locus1, locus2),
+    gene_symbol = fifelse(!is.na(gene1), gene1, gene2),
+    PP.H4 = fifelse(!is.na(pp1), pp1, pp2)
+  )]
+  parsed <- unique(parsed, by = "file")
+}
+
+n_ok <- if (nrow(parsed) > 0) sum(!is.na(parsed$locus)) else 0
+```
+
+::: {.callout-note}
+`r length(files)` arquivo(s) encontrados em `data/regional_plots/`; `r n_ok` casados com um par locus\|gene conhecido.
+`r if (tem_splice_id) "" else "AVISO: coluna splice_id ausente no CSV -- plots de sQTL podem não casar (reprocesse o aggregate_coloc.R com a correção do splice_id)."`
+:::
+
+```{r galeria}
+if (nrow(parsed) == 0) {
+  cat("Nenhum arquivo `*_regional.png` encontrado em `data/regional_plots/`.")
+} else {
+  tab <- parsed[order(locus, -PP.H4)]
+  tab[, thumb := sprintf(
+    '<a href="regional_plots/%s" target="_blank"><img src="regional_plots/%s" style="max-height:110px;max-width:220px;"></a>',
+    file, file
+  )]
+  tab[, PP.H4 := round(PP.H4, 3)]
+
+  datatable(
+    tab[, .(locus, gene_symbol, dataset, PP.H4, thumb, file)],
+    escape = FALSE, rownames = FALSE, filter = "top",
+    options = list(pageLength = 8, scrollX = TRUE,
+                   columnDefs = list(list(targets = 4, orderable = FALSE)))
+  )
+}
+```
+
+Clique numa miniatura para abrir o regional plot em tamanho real.

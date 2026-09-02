@@ -1,0 +1,17 @@
+{
+  "hash": "82facde4d12a47babc0d2f963d42fee7",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"A multi-context colocalization atlas of Alzheimer's Disease loci\"\nsubtitle: \"Reassigning GWAS loci across brain development, adult brain, and single cell types\"\nformat:\n  html:\n    page-layout: full\nexecute:\n  echo: false\n  warning: false\n  message: false\n---\n\n\n::: {.cell}\n\n:::\n\n\n::: {.callout-note}\nThis is still an ongoing project - results will keep being updated while the analysis advances.\n:::\n\n\n::: {.cell}\n::: {.cell-output-display}\n\n```{=html}\n<div>\n<div class=\"kpi-box\">\n<span class=\"num\">97</span>\n<span class=\"lab\">tested loci</span>\n</div>\n<div class=\"kpi-box\">\n<span class=\"num\">86 (89%)</span>\n<span class=\"lab\">loci with significant colocalization</span>\n</div>\n<div class=\"kpi-box\">\n<span class=\"num\">417</span>\n<span class=\"lab\">prioritized genes</span>\n</div>\n<div class=\"kpi-box\">\n<span class=\"num\">423</span>\n<span class=\"lab\">locus–gene pairs</span>\n</div>\n<div class=\"kpi-box\">\n<span class=\"num\">273</span>\n<span class=\"lab\">sQTL events</span>\n</div>\n<div class=\"kpi-box\">\n<span class=\"num\">44666</span>\n<span class=\"lab\">tests in fetal brain datasets</span>\n</div>\n</div>\n```\n\n:::\n:::\n\n\n## How to use it\n\n- **Manhattan (interactive)** — Manhattan plot of the whole genome, hover through a locus to show colocalization details.\n- **Colocalization Explorer** — Full colocalization bubble plot, you can filter by dataset family and locus.\n- **Development vs Adult** — Dev/adult contrast, with highlight to dev-only pairs.\n- **Cell Type Specificity** — cell type specificity heatmap (sceQTL).\n- **Locus Table** — browsable table, with an overview of results by locus.\n\n## A peek at the methodology\n\nThe results shown correspond to Bayesian colocalization (`coloc.abf`, PP.H4 ≥ 0,8) between the consensus AD GWAS (2026) and 23 xQTL datasets — BigBrain (adult, eQTL/sQTL), DevBrain (fetal, eQTL/sQTL), SingleBrain (7 major cell types) e GTEx (15 tissues). Colocalization windows were defined as 500 kb centered at the reported lead variant of each locus. Full methods will be published soon in a paper. Pipeline: [`nf_coloc`](https://github.com/juliaapolonio/nf_coloc).\n",
+    "supporting": [
+      "index_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

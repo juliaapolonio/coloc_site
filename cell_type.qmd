@@ -1,0 +1,50 @@
+---
+title: "Cell Type Specificity"
+subtitle: "sceQTL (SingleBrain) — locus|gene pairs with at least 1 significant colocalization."
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(data.table); library(stringr); library(plotly)
+THR <- 0.8
+
+d <- fread("data/coloc_all_annotated.csv")
+d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
+d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+d[, pair := paste(locus, gene_symbol, sep = " | ")]
+
+sc <- d[str_detect(dataset, regex("^singlebrain_", ignore_case = TRUE))]
+sc[, ct := str_remove(dataset, regex("^singlebrain_", ignore_case = TRUE))]
+
+m <- sc[, .(pp4 = max(PP.H4, na.rm = TRUE)), by = .(pair, ct)]
+pares_sig <- unique(m[pp4 > THR, pair])
+m <- m[pair %in% pares_sig]
+
+ord <- m[, .(n_sig = sum(pp4 > THR), top = max(pp4)), by = pair][order(-n_sig, -top)]
+m[, pair := factor(pair, levels = rev(ord$pair))]
+
+mat <- dcast(m, pair ~ ct, value.var = "pp4", fill = NA)
+rn <- mat$pair; mat[, pair := NULL]
+mat <- as.matrix(mat); rownames(mat) <- as.character(rn)
+```
+
+```{r heatmap}
+#| fig-height: 12
+
+plot_ly(
+  x = colnames(mat), y = rownames(mat), z = mat,
+  type = "heatmap", colors = colorRamp(c("grey95", "#c6dbef", "#4292c6", "#08306b")),
+  zmin = 0, zmax = 1,
+  hovertemplate = "%{y}<br>%{x}: PP.H4 = %{z:.3f}<extra></extra>"
+) |>
+  layout(xaxis = list(title = "Tipo celular"), yaxis = list(title = NULL, tickfont = list(size = 9)),
+         margin = list(l = 220))
+```
+
+Ordered: pairs restricted to a single cell type first, grouped by the dominant type.

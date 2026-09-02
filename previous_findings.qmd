@@ -1,0 +1,78 @@
+---
+title: "Previous Findings"
+subtitle: "Convergence between locus|gene pairs reported on this analysis and previously reported colocalizations (BigBrain, Bellenguez and SingleBrain papers)."
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(data.table); library(stringr); library(DT); library(htmltools)
+
+# arquivo bruto: mesma tabela "lista_locus" já usada antes pra calcular
+# convergência -- ver data/README dentro deste site
+L <- fread("data/lista_locus.csv")
+L <- L[!is.na(locus)]
+
+split_genes <- function(x) {
+  if (is.na(x) || x == "") return(character(0))
+  p <- str_trim(str_split(x, "[,;]")[[1]])
+  p[p != "" & !toupper(p) %in% c("NA", "NAN", "-")]
+}
+
+lit_cols <- intersect(c("bigbrain_eqtl", "bigbrain_sqtl", "genes_bellenguez", "singlebrain_results"), names(L))
+
+L[, meus := lapply(genes_significant, split_genes)]
+L[, lit  := lapply(seq_len(.N), function(i) {
+  Reduce(union, lapply(lit_cols, function(cc) split_genes(L[[cc]][i])))
+})]
+L[, inter := Map(intersect, meus, lit)]
+L[, novos := Map(setdiff, meus, lit)]
+
+L[, status := fcase(
+  lengths(lit) == 0, "No comparison",
+  lengths(inter) > 0, "Convergence",
+  default = "Divergence"
+)]
+
+kpi <- function(num, lab) div(class = "kpi-box", span(class = "num", num), span(class = "lab", lab))
+comparaveis <- L[status != "No comparison"]
+```
+
+```{r kpis}
+div(
+  kpi(nrow(L), "Loci on the table"),
+  kpi(nrow(comparaveis), "with literature reports to compare"),
+  kpi(paste0(round(mean(comparaveis$status == "Convergence") * 100), "%"), "convergence"),
+  kpi(sum(L$status == "No comparison"), "no previous register (new or non-audited loci)")
+)
+```
+
+## Full table
+
+```{r tabela}
+tab <- L[, .(
+  locus, cohort = descoberta_loci, status,
+  n_significant, n_ambiguous,
+  results = vapply(meus, paste, character(1), collapse = ", "),
+  literature  = vapply(lit, paste, character(1), collapse = ", "),
+  coincide   = vapply(inter, paste, character(1), collapse = ", "),
+  additional  = vapply(novos, paste, character(1), collapse = ", ")
+)]
+setorder(tab, status, locus)
+
+datatable(tab, rownames = FALSE, filter = "top", extensions = "Buttons",
+          options = list(pageLength = 20, dom = "Bfrtip", buttons = c("copy", "csv"),
+                         scrollX = TRUE),
+          class = "compact stripe")
+```
+
+::: {.callout-note collapse="true"}
+## Como a convergência é calculada
+
+`Convergence` = at least one gene in common between the genes that colocalized on this analysis (`genes_significant`) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). `Divergence` = there's literature for the locus, but none of the genes coincides. `No comparison` = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis).
+:::

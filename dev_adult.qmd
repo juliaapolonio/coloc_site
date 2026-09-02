@@ -1,0 +1,66 @@
+---
+title: "Development vs Adult"
+subtitle: "Each point is a locus|gene pair. Above the diagonal = stronger signal in development."
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(data.table); library(stringr); library(plotly); library(DT)
+THR <- 0.8
+
+d <- fread("data/coloc_all_annotated.csv")
+d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
+d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+d[, pair := paste(locus, gene_symbol, sep = " | ")]
+d[, stage := fifelse(str_detect(dataset, regex("^devbrain_", ignore_case = TRUE)), "Dev", "Adult")]
+
+w <- dcast(d[, .(pp4 = max(PP.H4, na.rm = TRUE)), by = .(pair, stage)],
+           pair ~ stage, value.var = "pp4", fill = 0)
+w <- w[Adult > THR | Dev > THR]
+w[, classe := fcase(Adult > THR & Dev > THR, "Both",
+                    Dev > THR, "Development only",
+                    default = "Adult only")]
+
+# candidatos priorizados manualmente (ver notas do lab meeting)
+destaque <- c("CELF1/SPI1 | SLC39A13", "KAT8/BCKDK | BCKDK", "MYO15A/TOM1L2 | SHMT1",
+             "ACE | ERN1", "APP | LINC00158")
+w[, destacar := pair %in% destaque]
+```
+
+```{r plot}
+#| fig-height: 7.5
+
+cores <- c("Both" = "#7F8C8D", "Adult only" = "#B7C9DB", "Development only" = "#C0392B")
+
+p <- plot_ly() |>
+  add_segments(x = 0, xend = 1, y = 0, yend = 1, line = list(dash = "dot", color = "grey80"),
+              hoverinfo = "skip", showlegend = FALSE) |>
+  add_trace(data = w[destacar == FALSE], x = ~Adult, y = ~Dev, type = "scatter", mode = "markers",
+            color = ~classe, colors = cores, marker = list(size = 8, opacity = 0.75),
+            text = ~paste0("<b>", pair, "</b><br>Adult: ", round(Adult,3), " | Dev: ", round(Dev,3)),
+            hoverinfo = "text") |>
+  add_trace(data = w[destacar == TRUE], x = ~Adult, y = ~Dev, type = "scatter", mode = "markers+text",
+            marker = list(size = 13, color = "#C0392B", line = list(color = "black", width = 1)),
+            text = ~str_remove(pair, ".*\\| "), textposition = "top center",
+            hovertext = ~paste0("<b>", pair, "</b><br>Adult: ", round(Adult,3), " | Dev: ", round(Dev,3),
+                                "<br><i>prioritized candidate</i>"),
+            hoverinfo = "text", showlegend = FALSE, name = "Destaque") |>
+  layout(xaxis = list(title = "Best PP.H4 — Adult", range = c(0,1)),
+         yaxis = list(title = "Best PP.H4 — Development", range = c(0,1)),
+         legend = list(title = list(text = "")))
+p
+```
+
+## All dev-only pairs
+
+```{r tabela-full}
+tab <- w[classe == "Development only"][order(-Dev)][, .(pair, Dev = round(Dev,3), Adult = round(Adult,3))]
+datatable(tab, rownames = FALSE, filter = "top",
+          options = list(pageLength = 10, scrollX = TRUE))
+```

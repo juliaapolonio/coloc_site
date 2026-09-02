@@ -1,0 +1,52 @@
+---
+title: "A multi-context colocalization atlas of Alzheimer's Disease loci"
+subtitle: "Reassigning GWAS loci across brain development, adult brain, and single cell types"
+format:
+  html:
+    page-layout: full
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(data.table); library(stringr)
+d <- fread("data/coloc_all_annotated.csv")
+d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
+d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+sig <- d[PP.H4 > 0.8]
+
+kpi <- function(num, lab) {
+  htmltools::div(class = "kpi-box",
+    htmltools::span(class = "num", num),
+    htmltools::span(class = "lab", lab))
+}
+```
+
+::: {.callout-note}
+This is still an ongoing project - results will keep being updated while the analysis advances.
+:::
+
+```{r kpis}
+htmltools::div(
+  kpi(uniqueN(d$locus), "tested loci"),
+  kpi(paste0(uniqueN(sig$locus), " (", round(uniqueN(sig$locus)/uniqueN(d$locus)*100), "%)"), "loci with significant colocalization"),
+  kpi(uniqueN(sig$gene_symbol), "prioritized genes"),
+  kpi(nrow(unique(sig[,.(locus,gene_symbol)])), "locus–gene pairs"),
+  kpi(sum(sig$dataset %like% "_sqtl"), "sQTL events"),
+  kpi(sum(d$dataset %like% "^devbrain"), "tests in fetal brain datasets")
+)
+```
+
+## How to use it
+
+- **Manhattan (interactive)** — Manhattan plot of the whole genome, hover through a locus to show colocalization details.
+- **Colocalization Explorer** — Full colocalization bubble plot, you can filter by dataset family and locus.
+- **Development vs Adult** — Dev/adult contrast, with highlight to dev-only pairs.
+- **Cell Type Specificity** — cell type specificity heatmap (sceQTL).
+- **Locus Table** — browsable table, with an overview of results by locus.
+
+## A peek at the methodology
+
+The results shown correspond to Bayesian colocalization (`coloc.abf`, PP.H4 ≥ 0,8) between the consensus AD GWAS (2026) and 23 xQTL datasets — BigBrain (adult, eQTL/sQTL), DevBrain (fetal, eQTL/sQTL), SingleBrain (7 major cell types) e GTEx (15 tissues). Colocalization windows were defined as 500 kb centered at the reported lead variant of each locus. Full methods will be published soon in a paper. Pipeline: [`nf_coloc`](https://github.com/juliaapolonio/nf_coloc).

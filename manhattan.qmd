@@ -1,0 +1,288 @@
+---
+title: "Alzheimer's disease GWAS — interactive colocalization Manhattan plot"
+format:
+  html:
+    embed-resources: true
+    page-layout: full
+    toc: false
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+
+pkgs <- c("data.table", "vroom", "stringr", "plotly", "crosstalk", "htmltools", "DT")
+to_install <- setdiff(pkgs, rownames(installed.packages()))
+if (length(to_install) > 0) install.packages(to_install, repos = "https://cloud.r-project.org")
+
+library(data.table); library(vroom); library(stringr)
+library(plotly); library(crosstalk); library(htmltools); library(DT)
+
+# ---------------------------------------------------------------
+# PARÂMETROS                                          ### AJUSTAR ###
+# ---------------------------------------------------------------
+sumstats_file <- "data/consensus_ADRD_withproxy.tsv"
+windows_file  <- "data/windows_com_nome_locus.tsv"
+coloc_file    <- "data/coloc_all_annotated.csv"
+
+pph4_threshold <- 0.8      # limiar de colocalização significativa
+gws_line       <- 5e-8     # linha vermelha (genome-wide)
+sugg_line      <- 1e-5     # linha preta (sugestiva)
+
+# Afinamento: um ÚNICO limiar para todo o genoma. Usar limiares diferentes
+# dentro e fora das janelas cria colunas verticais artificiais (os loci
+# descem mais que o resto do genoma), então o corte é uniforme.
+p_display      <- 1e-4     # só variantes abaixo deste p entram no gráfico
+cap_logp       <- 40       # teto do eixo y (APOE estoura a escala)
+max_ds_tooltip <- 12       # máximo de datasets listados no tooltip
+
+```
+
+```{r dados}
+#| include: false
+
+# ---------------------------------------------------------------
+# 1) Sumstats
+# ---------------------------------------------------------------
+gwas <- vroom(
+  sumstats_file,
+  col_select = c(chromosome, base_pair_location, p_value, rsid),
+  show_col_types = FALSE
+)
+setDT(gwas)
+setnames(gwas, c("chromosome", "base_pair_location", "p_value", "rsid"),
+         c("chr", "bp", "p", "snp"))
+
+gwas[, chr := suppressWarnings(as.integer(str_remove(as.character(chr), "^chr")))]
+gwas <- gwas[!is.na(chr) & chr >= 1 & chr <= 22 & !is.na(bp) & !is.na(p)]
+
+# p = 0 quebra o log; substitui pelo menor p positivo observado
+min_p <- min(gwas$p[gwas$p > 0], na.rm = TRUE)
+gwas[p <= 0, p := min_p]
+gwas[, logp := pmin(-log10(p), cap_logp)]
+
+# ---------------------------------------------------------------
+# 2) Corte único + atribuição de locus
+# ---------------------------------------------------------------
+# O corte vem ANTES do overlap join: reduz de milhões para dezenas de
+# milhares de linhas e garante que dentro e fora das janelas o critério
+# de exibição seja idêntico.
+cand <- gwas[p < p_display]
+
+win <- as.data.table(vroom(windows_file, show_col_types = FALSE))
+win[, chr := as.integer(str_remove(as.character(chr), "^chr"))]
+
+cand[, `:=`(start = bp, end = bp)]
+setkey(win, chr, start, end)
+
+ov <- foverlaps(cand, win, by.x = c("chr", "start", "end"),
+                type = "within", nomatch = NA)
+
+# janelas de loci vizinhos podem se sobrepor: fica com a primeira ocorrência
+ov <- unique(ov, by = c("chr", "bp", "snp"))
+plot_dat <- ov[, .(chr, bp, snp, p, logp, locus_name)]
+setorder(plot_dat, chr, bp)
+
+message("Variantes plotadas: ", nrow(plot_dat),
+        " | dentro de janelas: ", sum(!is.na(plot_dat$locus_name)))
+
+# ---------------------------------------------------------------
+# 3) Eixo x cumulativo + cores alternadas por cromossomo
+# ---------------------------------------------------------------
+chr_len <- plot_dat[, .(chr_max = max(bp)), by = chr][order(chr)]
+chr_len[, offset := shift(cumsum(as.numeric(chr_max)), fill = 0)]
+
+plot_dat <- merge(plot_dat, chr_len[, .(chr, offset)], by = "chr", all.x = TRUE)
+plot_dat[, pos_cum := bp + offset]
+
+axis_chr <- plot_dat[, .(center = (max(pos_cum) + min(pos_cum)) / 2), by = chr][order(chr)]
+
+col_dark  <- "#12395C"
+col_light <- "#7FA8D4"
+plot_dat[, col := ifelse(chr %% 2 == 0, col_light, col_dark)]
+
+# ---------------------------------------------------------------
+# 4) Tooltip: resumo de colocalização por locus
+# ---------------------------------------------------------------
+coloc <- as.data.table(vroom(coloc_file, show_col_types = FALSE))
+coloc[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+coloc <- coloc[!is.na(gene_symbol) & gene_symbol != ""]
+
+sig <- coloc[PP.H4 > pph4_threshold]
+
+top_hit <- sig[order(-PP.H4), .SD[1], by = locus][
+  , .(locus, top_gene = gene_symbol, top_pp4 = PP.H4, top_ds = dataset)]
+
+by_ds_raw <- sig[, .(genes = paste(sort(unique(gene_symbol)), collapse = ", ")),
+                 by = .(locus, dataset)][order(locus, dataset)]
+
+by_ds <- by_ds_raw[, {
+  n <- .N
+  shown <- .SD[seq_len(min(n, max_ds_tooltip))]
+  bloco <- paste0("&nbsp;&nbsp;<i>", shown$dataset, "</i>: ", shown$genes, collapse = "<br>")
+  if (n > max_ds_tooltip) {
+    bloco <- paste0(bloco, "<br>&nbsp;&nbsp;<span style='color:#999'>+ ",
+                    n - max_ds_tooltip, " outro(s) dataset(s)</span>")
+  }
+  .(n_ds = n, bloco = bloco)
+}, by = locus]
+
+n_genes <- sig[, .(n_genes = uniqueN(gene_symbol)), by = locus]
+
+tip <- unique(win[, .(locus_name)])
+tip <- merge(tip, top_hit, by.x = "locus_name", by.y = "locus", all.x = TRUE)
+tip <- merge(tip, by_ds,   by.x = "locus_name", by.y = "locus", all.x = TRUE)
+tip <- merge(tip, n_genes, by.x = "locus_name", by.y = "locus", all.x = TRUE)
+
+tip[, tooltip := fifelse(
+  is.na(top_gene),
+  paste0("<b>", locus_name, "</b><br><span style='color:#999'>sem colocalização (PP.H4 > ",
+         pph4_threshold, ")</span>"),
+  paste0("<b>", locus_name, "</b><br>",
+         "<b>Top:</b> ", top_gene, " (PP.H4 = ", sprintf("%.3f", top_pp4), ")<br>",
+         "<span style='color:#666'>em ", top_ds, "</span><br>",
+         "<span style='color:#666'>", n_genes, " gene(s) em ", n_ds, " dataset(s)</span>",
+         "<br><br><b>Por dataset:</b><br>", bloco)
+)]
+tip <- tip[, .(locus_name, tooltip)]
+
+# ---------------------------------------------------------------
+# 5) Camadas: fundo (sem interação) e loci (com highlight)
+# ---------------------------------------------------------------
+bg_dat  <- plot_dat[is.na(locus_name)]
+loc_dat <- merge(plot_dat[!is.na(locus_name)], tip, by = "locus_name", all.x = TRUE)
+loc_dat[, hover := paste0(tooltip, "<br><br><span style='color:#999'>", snp,
+                          " — chr", chr, ":", format(bp, big.mark = ","),
+                          " — p = ", signif(p, 3), "</span>")]
+
+# rótulo de cada locus, posicionado na variante mais significativa
+labels <- loc_dat[order(-logp), .SD[1], by = locus_name]
+
+# ---------------------------------------------------------------
+# Repel vertical dos rótulos (estilo ggrepel, feito à mão)
+# ---------------------------------------------------------------
+# O texto é vertical, então colisões acontecem quando dois loci ficam
+# próximos no eixo x. A solução é distribuir os rótulos em "faixas" de
+# alturas diferentes: percorrendo da esquerda para a direita, cada rótulo
+# entra na faixa mais baixa que ainda não tem um vizinho perto demais.
+n_lanes      <- 4      # nº de alturas disponíveis
+min_gap_frac <- 0.013  # distância mínima em x (fração da largura do eixo)
+base_ay      <- 26     # deslocamento da primeira faixa, em pixels
+lane_step    <- 34     # distância entre faixas, em pixels
+
+x_span  <- diff(range(plot_dat$pos_cum))
+min_gap <- min_gap_frac * x_span
+
+setorder(labels, pos_cum)
+lane_last_x <- rep(-Inf, n_lanes)
+lane_vec    <- integer(nrow(labels))
+
+for (i in seq_len(nrow(labels))) {
+  x <- labels$pos_cum[i]
+  free <- which((x - lane_last_x) >= min_gap)
+  # faixa mais baixa disponível; se nenhuma estiver livre, usa a mais antiga
+  l <- if (length(free) > 0) free[1] else which.min(lane_last_x)
+  lane_vec[i]    <- l
+  lane_last_x[l] <- x
+}
+labels[, lane := lane_vec]
+labels[, ay := -(base_ay + (lane - 1) * lane_step)]
+
+# Loci cuja variante mais forte fica ABAIXO do corte não aparecem no gráfico:
+# não têm ponto para hover nem rótulo. Vale conferir a lista.
+loci_ausentes <- setdiff(unique(win$locus_name), unique(loc_dat$locus_name))
+if (length(loci_ausentes) > 0) {
+  message("Loci sem variante acima de p < ", p_display,
+          " (não aparecem no gráfico): ", paste(loci_ausentes, collapse = ", "))
+}
+
+sd_loci <- SharedData$new(as.data.frame(loc_dat), key = ~locus_name, group = "manhattan")
+```
+
+::: {.callout-note collapse="true"}
+## How to use
+
+Hover your mouse in any variant of a significant locus: **all variants of that locus will turn red** and the box will show the summary of colocalization of that locus. Double-click to clear the highlight. For busiest regions you can use the zoom tool to help separate the labels.
+
+The background points are variants outside the colocalization windows and are not interactive. To keep the scale legible, the plot shows only variants with **p < 1e-4** and the y axis was truncated on the top because of APOE locus.
+:::
+
+```{r manhattan}
+#| fig-height: 7.5
+#| out-width: "100%"
+
+xr <- range(plot_dat$pos_cum)
+
+p <- plot_ly() |>
+  add_trace(
+    data = bg_dat, x = ~pos_cum, y = ~logp,
+    type = "scattergl", mode = "markers",
+    marker = list(size = 3, color = ~col, opacity = 0.55),
+    hoverinfo = "skip", showlegend = FALSE, name = "background"
+  ) |>
+  add_trace(
+    data = sd_loci, x = ~pos_cum, y = ~logp,
+    type = "scattergl", mode = "markers",
+    marker = list(size = 4.5, color = ~col, opacity = 0.9),
+    text = ~hover, hoverinfo = "text", showlegend = FALSE, name = "loci"
+  ) |>
+  add_segments(
+    x = xr[1], xend = xr[2], y = -log10(gws_line), yend = -log10(gws_line),
+    line = list(color = "#C0392B", dash = "dash", width = 1),
+    hoverinfo = "skip", showlegend = FALSE, inherit = FALSE
+  ) |>
+  add_segments(
+    x = xr[1], xend = xr[2], y = -log10(sugg_line), yend = -log10(sugg_line),
+    line = list(color = "#444444", dash = "dash", width = 1),
+    hoverinfo = "skip", showlegend = FALSE, inherit = FALSE
+  ) |>
+  add_annotations(
+    data = labels, x = ~pos_cum, y = ~logp, text = ~locus_name,
+    textangle = -90, xanchor = "center", yanchor = "bottom",
+    showarrow = TRUE, arrowhead = 0, arrowwidth = 0.5,
+    arrowcolor = "#AAAAAA", ax = 0, ay = ~ay,
+    font = list(size = 9, family = "Helvetica", color = "#222222"),
+    inherit = FALSE
+  ) |>
+  layout(
+    xaxis = list(title = "Chromosome", tickmode = "array",
+                 tickvals = axis_chr$center, ticktext = axis_chr$chr,
+                 zeroline = FALSE, showgrid = FALSE),
+    yaxis = list(title = "-log<sub>10</sub>(P)", zeroline = FALSE,
+                 showgrid = FALSE,
+                 range = c(-log10(p_display) - 0.3, max(plot_dat$logp) * 1.12)),
+    hoverlabel = list(align = "left", bgcolor = "white",
+                      bordercolor = "#12395C",
+                      font = list(size = 11, family = "Helvetica")),
+    plot_bgcolor = "white", paper_bgcolor = "white",
+    # margem superior dimensionada para caber a faixa mais alta + o texto
+    margin = list(t = base_ay + (n_lanes - 1) * lane_step + 70)
+  ) |>
+  config(displaylogo = FALSE,
+         modeBarButtonsToRemove = c("select2d", "lasso2d", "autoScale2d"))
+
+# on = plotly_hover: destaca o grupo inteiro (locus) de uma vez
+# opacityDim = 1: mantém o restante visível em vez de esmaecer
+highlight(p, on = "plotly_hover", off = "plotly_doubleclick",
+          color = "#D62728", opacityDim = 1,
+          selected = attrs_selected(showlegend = FALSE))
+```
+
+## Summary of colocalization results by locus
+
+```{r tabela}
+tab <- sig[, .(best_pp4 = round(max(PP.H4), 3),
+               datasets = paste(sort(unique(dataset)), collapse = ", "),
+               n_datasets = uniqueN(dataset)),
+           by = .(locus, gene_symbol)][order(locus, -best_pp4)]
+
+setnames(tab, c("locus", "gene_symbol", "best_pp4", "datasets", "n_datasets"),
+         c("Locus", "Gene", "Best PP.H4", "Datasets", "N datasets"))
+
+datatable(tab, rownames = FALSE, filter = "top", extensions = "Buttons",
+          options = list(pageLength = 15, dom = "Bfrtip",
+                         buttons = c("copy", "csv"), scrollX = TRUE))
+```
