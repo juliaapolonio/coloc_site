@@ -14,11 +14,57 @@ execute:
 library(data.table); library(stringr); library(plotly); library(DT)
 THR <- 0.8
 
+collapse_events <- function(x, max_n = 6) {
+  x <- unlist(str_split(as.character(x), ";"))
+  x <- str_trim(x)
+  x <- unique(x[!is.na(x) & x != "" & !toupper(x) %in% c("NA", "NAN")])
+  if (length(x) == 0) return("")
+  if (length(x) > max_n) return(paste0(paste(sort(x)[seq_len(max_n)], collapse = "; "),
+                                       " (+", length(x) - max_n, " more)"))
+  paste(sort(x), collapse = "; ")
+}
+
 d <- fread("data/coloc_all_annotated.csv")
 d[is.na(gene_symbol) | gene_symbol == "", gene_symbol := gene_clean]
 d[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
 d[, pair := paste(locus, gene_symbol, sep = " | ")]
 d[, stage := fifelse(str_detect(dataset, regex("^devbrain_", ignore_case = TRUE)), "Dev", "Adult")]
+d[, qtl_type := fifelse(str_detect(dataset, regex("sqtl", ignore_case = TRUE)), "sQTL", "eQTL")]
+d[, dataset := as.character(dataset)]
+d[, region_chr := as.character(region_chr)]
+
+## --- tipo de evento de splicing (Canonical, Exon Skipping, ...) --------------
+# Vem do sqtl_filtrado, não do coloc_all_annotated. Junção em dois níveis: o
+# splice_id é a chave exata do evento, mas ele nem sempre existe no
+# coloc_all_annotated (depende de quando o aggregate_coloc.R foi rodado); o
+# fallback por região+gene recupera o conjunto de eventos daquele par.
+ev_path <- c("data/sqtl_filtrado", "data/sqtl_filtrado.tsv", "data/sqtl_filtrado.csv")
+ev_path <- ev_path[file.exists(ev_path)][1]
+
+d[, splicing_event := NA_character_]
+
+if (!is.na(ev_path)) {
+  ev <- fread(ev_path)
+  ev[, dataset := as.character(dataset)]
+  ev[, region_chr := as.character(region_chr)]
+  ev[, gene_symbol := str_remove(as.character(gene_symbol), ";.*$")]
+
+  if ("splice_id" %in% names(d) && "splice_id" %in% names(ev)) {
+    d[, splice_id := as.character(splice_id)]
+    k1 <- ev[, .(ev1 = collapse_events(splicing_event)),
+             by = .(dataset, splice_id = as.character(splice_id))]
+    d <- merge(d, k1, by = c("dataset", "splice_id"), all.x = TRUE, sort = FALSE)
+  } else {
+    d[, ev1 := NA_character_]
+  }
+
+  k2 <- ev[, .(ev2 = collapse_events(splicing_event)),
+           by = .(dataset, region_chr, region_start, region_end, gene_symbol)]
+  d <- merge(d, k2, by = c("dataset", "region_chr", "region_start", "region_end", "gene_symbol"),
+             all.x = TRUE, sort = FALSE)
+
+  d[, splicing_event := fifelse(!is.na(ev1) & ev1 != "", ev1, ev2)]
+}
 
 w <- dcast(d[, .(pp4 = max(PP.H4, na.rm = TRUE)), by = .(pair, stage)],
            pair ~ stage, value.var = "pp4", fill = 0)
@@ -26,6 +72,33 @@ w <- w[Adult > THR | Dev > THR]
 w[, classe := fcase(Adult > THR & Dev > THR, "Both",
                     Dev > THR, "Development only",
                     default = "Adult only")]
+
+## --- anotação de tipo de QTL e eventos por par|estágio -----------------------
+sig <- copy(d[PP.H4 > THR])
+sig[, stage := factor(stage, levels = c("Adult", "Dev"))]
+ann <- sig[, .(
+  qtl    = paste(sort(unique(qtl_type)), collapse = " + "),
+  events = collapse_events(splicing_event[qtl_type == "sQTL"])
+), by = .(pair, stage)]
+
+ann_w <- dcast(ann, pair ~ stage, value.var = c("qtl", "events"), fill = "", drop = FALSE)
+for (cc in c("qtl_Adult", "qtl_Dev", "events_Adult", "events_Dev")) {
+  if (!cc %in% names(ann_w)) ann_w[, (cc) := ""]
+}
+w <- merge(w, ann_w, by = "pair", all.x = TRUE)
+for (cc in c("qtl_Adult", "qtl_Dev", "events_Adult", "events_Dev")) {
+  set(w, which(is.na(w[[cc]])), cc, "")
+}
+w[qtl_Adult == "", qtl_Adult := "—"]
+w[qtl_Dev   == "", qtl_Dev   := "—"]
+
+w[, hover := paste0(
+  "<b>", pair, "</b>",
+  "<br>Adult: ", round(Adult, 3), "  (", qtl_Adult, ")",
+  "<br>Dev: ",   round(Dev, 3),   "  (", qtl_Dev, ")",
+  fifelse(events_Adult != "", paste0("<br><i>Splicing event (Adult):</i> ", events_Adult), ""),
+  fifelse(events_Dev   != "", paste0("<br><i>Splicing event (Dev):</i> ",   events_Dev),   "")
+)]
 
 # candidatos priorizados manualmente (ver notas do lab meeting)
 destaque <- c("CELF1/SPI1 | SLC39A13", "KAT8/BCKDK | BCKDK", "MYO15A/TOM1L2 | SHMT1",
@@ -43,16 +116,15 @@ p <- plot_ly() |>
               hoverinfo = "skip", showlegend = FALSE) |>
   add_trace(data = w[destacar == FALSE], x = ~Adult, y = ~Dev, type = "scatter", mode = "markers",
             color = ~classe, colors = cores, marker = list(size = 8, opacity = 0.75),
-            text = ~paste0("<b>", pair, "</b><br>Adult: ", round(Adult,3), " | Dev: ", round(Dev,3)),
-            hoverinfo = "text") |>
+            text = ~hover, hoverinfo = "text") |>
   add_trace(data = w[destacar == TRUE], x = ~Adult, y = ~Dev, type = "scatter", mode = "markers+text",
             marker = list(size = 13, color = "#C0392B", line = list(color = "black", width = 1)),
             text = ~str_remove(pair, ".*\\| "), textposition = "top center",
-            hovertext = ~paste0("<b>", pair, "</b><br>Adult: ", round(Adult,3), " | Dev: ", round(Dev,3),
-                                "<br><i>prioritized candidate</i>"),
-            hoverinfo = "text", showlegend = FALSE, name = "Destaque") |>
+            hovertext = ~paste0(hover, "<br><i>prioritized candidate</i>"),
+            hoverinfo = "text", showlegend = FALSE, name = "Prioritized") |>
   layout(xaxis = list(title = "Best PP.H4 — Adult", range = c(0,1)),
          yaxis = list(title = "Best PP.H4 — Development", range = c(0,1)),
+         hoverlabel = list(align = "left"),
          legend = list(title = list(text = "")))
 p
 ```
@@ -60,7 +132,14 @@ p
 ## All dev-only pairs
 
 ```{r tabela-full}
-tab <- w[classe == "Development only"][order(-Dev)][, .(pair, Dev = round(Dev,3), Adult = round(Adult,3))]
+tab <- w[classe == "Development only"][order(-Dev)][, .(
+  pair,
+  Dev = round(Dev, 3),
+  Adult = round(Adult, 3),
+  `QTL type (Dev)`       = qtl_Dev,
+  `Splicing event (Dev)` = fifelse(events_Dev == "", "—", events_Dev),
+  `QTL type (Adult)`     = qtl_Adult
+)]
 datatable(tab, rownames = FALSE, filter = "top",
           options = list(pageLength = 10, scrollX = TRUE))
 ```

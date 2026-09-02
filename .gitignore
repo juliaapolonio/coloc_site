@@ -8,3 +8,5 @@
 # consensus_ADRD_withproxy.tsv sozinho provavelmente estoura o limite de
 # 100MB por arquivo do GitHub.
 /data/
+
+**/*.quarto_ipynb

@@ -27,24 +27,82 @@ pares_sig <- unique(m[pp4 > THR, pair])
 m <- m[pair %in% pares_sig]
 
 ord <- m[, .(n_sig = sum(pp4 > THR), top = max(pp4)), by = pair][order(-n_sig, -top)]
-m[, pair := factor(pair, levels = rev(ord$pair))]
+pairs_ord <- as.character(ord$pair)
+ct_levels <- sort(unique(as.character(m$ct)))
 
-mat <- dcast(m, pair ~ ct, value.var = "pp4", fill = NA)
-rn <- mat$pair; mat[, pair := NULL]
-mat <- as.matrix(mat); rownames(mat) <- as.character(rn)
+m[, ct   := factor(as.character(ct),   levels = ct_levels)]
+m[, pair := factor(as.character(pair), levels = pairs_ord)]
+
+# drop = FALSE garante que todo tipo celular vire coluna mesmo quando não tem
+# nenhuma linha significativa -- senão os blocos saem com número de colunas
+# diferente e o subplot deixa de ser comparável.
+mat_all <- dcast(m, pair ~ ct, value.var = "pp4", fill = NA_real_, drop = FALSE)
+rn <- as.character(mat_all$pair); mat_all[, pair := NULL]
+mat_all <- as.matrix(mat_all); rownames(mat_all) <- rn
 ```
 
 ```{r heatmap}
-#| fig-height: 12
+#| fig-height: 9
 
-plot_ly(
-  x = colnames(mat), y = rownames(mat), z = mat,
-  type = "heatmap", colors = colorRamp(c("grey95", "#c6dbef", "#4292c6", "#08306b")),
-  zmin = 0, zmax = 1,
-  hovertemplate = "%{y}<br>%{x}: PP.H4 = %{z:.3f}<extra></extra>"
-) |>
-  layout(xaxis = list(title = "Tipo celular"), yaxis = list(title = NULL, tickfont = list(size = 9)),
-         margin = list(l = 220))
+n_blocks <- 3
+idx_blocks <- split(seq_len(nrow(mat_all)), cut(seq_len(nrow(mat_all)), n_blocks, labels = FALSE))
+
+pal <- colorRamp(c("grey95", "#c6dbef", "#4292c6", "#08306b"))
+
+make_block <- function(idx, show_scale) {
+  mb <- mat_all[idx, , drop = FALSE]
+  # plotly desenha a primeira linha embaixo; inverte para o topo do bloco ser
+  # o primeiro par da ordenação.
+  mb <- mb[rev(seq_len(nrow(mb))), , drop = FALSE]
+
+  p <- plot_ly() |>
+    add_trace(x = colnames(mb), y = rownames(mb), z = mb, type = "heatmap",
+              colors = pal, zmin = 0, zmax = 1, showscale = show_scale,
+              colorbar = list(title = "PP.H4", len = 0.45, y = 0.5, thickness = 12),
+              hovertemplate = "%{y}<br>%{x}: PP.H4 = %{z:.3f}<extra></extra>")
+
+  sig <- which(mb > THR, arr.ind = TRUE)
+  if (nrow(sig) > 0) {
+    p <- add_trace(p,
+      x = colnames(mb)[sig[, "col"]],
+      y = rownames(mb)[sig[, "row"]],
+      type = "scatter", mode = "text",
+      text = rep("\u2217", nrow(sig)),
+      textposition = "middle center",
+      textfont = list(color = "white", size = 15),
+      hoverinfo = "skip", showlegend = FALSE)
+  }
+  p
+}
+
+plots <- lapply(seq_along(idx_blocks), function(i) {
+  make_block(idx_blocks[[i]], show_scale = (i == length(idx_blocks)))
+})
+
+# margin é por painel, então o vão entre dois blocos é 2x esse valor. Precisa
+# ser largo o bastante para caber o rótulo "LOCUS | GENE" do bloco seguinte,
+# senão ele é desenhado por cima do heatmap anterior.
+fig <- subplot(plots, nrows = 1, margin = 0.075)
+
+# scaleanchor amarra a escala do eixo y à do x -> tiles quadrados. Como o
+# plotly encolhe o domínio para respeitar a proporção, constraintoward fixa o
+# encolhimento à esquerda/topo -- sem isso ele centraliza e abre um vão entre
+# os rótulos das linhas e a primeira coluna de tiles.
+ax <- list()
+for (i in seq_along(idx_blocks)) {
+  sfx <- if (i == 1) "" else as.character(i)
+  ax[[paste0("xaxis", sfx)]] <- list(
+    title = "", side = "top", tickangle = -45,
+    tickfont = list(size = 10), showgrid = FALSE, ticks = "",
+    constrain = "domain", constraintoward = "left")
+  ax[[paste0("yaxis", sfx)]] <- list(
+    title = "", tickfont = list(size = 8.5), showgrid = FALSE, ticks = "",
+    scaleanchor = paste0("x", sfx), scaleratio = 1,
+    constrain = "domain", constraintoward = "top")
+}
+fig <- do.call(plotly::layout, c(list(fig), ax,
+                                list(margin = list(t = 50, b = 10, r = 10))))
+fig
 ```
 
-Ordered: pairs restricted to a single cell type first, grouped by the dominant type.
+Ordered: pairs restricted to a single cell type first, grouped by the dominant type. White ∗ marks PP.H4 > 0.8. Blocks read left to right.

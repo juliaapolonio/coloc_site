@@ -11,7 +11,10 @@ execute:
 ---
 
 ```{r setup}
-library(data.table); library(stringr); library(DT); library(htmltools)
+pkgs <- c("data.table", "stringr", "DT", "htmltools", "eulerr")
+to_install <- setdiff(pkgs, rownames(installed.packages()))
+if (length(to_install) > 0) install.packages(to_install, repos = "https://cloud.r-project.org")
+library(data.table); library(stringr); library(DT); library(htmltools); library(eulerr)
 
 # arquivo bruto: mesma tabela "lista_locus" já usada antes pra calcular
 # convergência -- ver data/README dentro deste site
@@ -33,10 +36,16 @@ L[, lit  := lapply(seq_len(.N), function(i) {
 L[, inter := Map(intersect, meus, lit)]
 L[, novos := Map(setdiff, meus, lit)]
 
+L[, has_mine := lengths(meus) > 0]
+L[, has_lit  := lengths(lit)  > 0]
+
+# Quatro categorias mutuamente exclusivas -- cada locus cai em exatamente uma
+# região do diagrama de Euler abaixo.
 L[, status := fcase(
-  lengths(lit) == 0, "No comparison",
-  lengths(inter) > 0, "Convergence",
-  default = "Divergence"
+  !has_lit,               "No comparison",
+  lengths(inter) > 0,     "Concordant",
+  has_mine,               "Discordant",
+  default = "Literature only"
 )]
 
 kpi <- function(num, lab) div(class = "kpi-box", span(class = "num", num), span(class = "lab", lab))
@@ -47,17 +56,53 @@ comparaveis <- L[status != "No comparison"]
 div(
   kpi(nrow(L), "Loci on the table"),
   kpi(nrow(comparaveis), "with literature reports to compare"),
-  kpi(paste0(round(mean(comparaveis$status == "Convergence") * 100), "%"), "convergence"),
+  kpi(paste0(round(mean(comparaveis$status == "Concordant") * 100), "%"), "concordance"),
   kpi(sum(L$status == "No comparison"), "no previous register (new or non-audited loci)")
 )
 ```
+
+## Overview
+
+```{r euler}
+#| fig-width: 8
+#| fig-height: 4.5
+#| fig-align: center
+
+regions <- c(
+  "This study"                 = sum(L$status == "Discordant"),
+  "Literature"                 = sum(L$status == "Literature only"),
+  "This study&Literature"      = sum(L$status == "Concordant"),
+  "New (no literature)"        = sum(L$status == "No comparison")
+)
+regions <- regions[regions > 0]
+
+# euler() lê um vetor nomeado como contagens de regiões DISJUNTAS: "This study"
+# é a área exclusiva, "This study&Literature" é apenas a interseção. O terceiro
+# conjunto não tem interseção declarada, então é desenhado como bolha isolada.
+fit <- eulerr::euler(regions)
+
+# uma cor por conjunto desenhado -- se alguma categoria zerar, o conjunto some
+# do fit e passar 3 cores fixas quebraria o plot
+fill_pal <- c("#1F6FB4", "#E4A33C", "#7FA96B")[seq_len(nrow(fit$ellipses))]
+
+# Os rótulos nas próprias formas ficam cortados: a região exclusiva de "This
+# study" é um crescente colado na borda esquerda, então o texto sai do device.
+# Legenda lateral resolve sem precisar mexer no ajuste do Euler.
+plot(fit,
+     quantities = list(fontsize = 15, col = "grey15"),
+     labels     = FALSE,
+     legend     = list(side = "right", fontsize = 12),
+     fills      = list(fill = fill_pal, alpha = 0.55),
+     edges      = list(col = "grey30", lwd = 1.2))
+```
+
+*Overlap = loci where at least one gene nominated here was also reported in the literature (concordant). "This study" alone = loci reported in the literature, but with no gene in common (discordant). "Literature" alone = loci with a previous report that did not reach significance here. The isolated bubble holds loci with no literature counterpart at all.*
 
 ## Full table
 
 ```{r tabela}
 tab <- L[, .(
   locus, cohort = descoberta_loci, status,
-  n_significant, n_ambiguous,
   results = vapply(meus, paste, character(1), collapse = ", "),
   literature  = vapply(lit, paste, character(1), collapse = ", "),
   coincide   = vapply(inter, paste, character(1), collapse = ", "),
@@ -72,7 +117,7 @@ datatable(tab, rownames = FALSE, filter = "top", extensions = "Buttons",
 ```
 
 ::: {.callout-note collapse="true"}
-## Como a convergência é calculada
+## How concordance is calculated
 
-`Convergence` = at least one gene in common between the genes that colocalized on this analysis (`genes_significant`) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). `Divergence` = there's literature for the locus, but none of the genes coincides. `No comparison` = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis).
+`Concordant` = at least one gene in common between the genes that colocalized on this analysis (`genes_significant`) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). `Discordant` = there's literature for the locus, but none of the genes coincides. `Literature only` = the locus was reported before, but nothing reached significance here. `No comparison` = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis).
 :::

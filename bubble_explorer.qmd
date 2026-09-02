@@ -34,7 +34,7 @@ d[, family := fcase(
   str_detect(dataset, regex("^bigbrain_", ignore_case = TRUE)),    "BigBrain",
   str_detect(dataset, regex("^devbrain_", ignore_case = TRUE)),    "DevBrain",
   str_detect(dataset, regex("^singlebrain_", ignore_case = TRUE)), "SingleBrain",
-  default = "Outro")]
+  default = "Other")]
 
 simplify_label <- function(dataset, family) {
   lbl <- str_remove(dataset, regex("^(gtex_|bigbrain_|devbrain_|singlebrain_)", ignore_case = TRUE))
@@ -63,7 +63,20 @@ plot_dt[, regional_file := fifelse(
   NA_character_
 )]
 
-sd <- SharedData$new(plot_dt, key = ~paste(locus, gene_symbol, dataset), group = "explorer")
+plot_dt[, ct_key := paste(locus, gene_symbol, dataset)]
+
+sd <- SharedData$new(plot_dt, key = ~ct_key, group = "explorer")
+
+# Mapa key -> (categoria x, categoria y) usado pelo JS para recalcular quais
+# linhas/colunas devem existir no eixo depois de cada filtro do crosstalk.
+# Sem isso o plotly mantém as categorias originais e sobram linhas/colunas vazias.
+axis_map <- list(
+  keys = plot_dt$ct_key,
+  xs   = plot_dt$dataset_label,
+  ys   = plot_dt$gene_symbol,
+  allX = sort(unique(plot_dt$dataset_label)),
+  allY = sort(unique(plot_dt$gene_symbol))
+)
 ```
 
 ::: {.panel-sidebar}
@@ -71,7 +84,7 @@ sd <- SharedData$new(plot_dt, key = ~paste(locus, gene_symbol, dataset), group =
 bscols(
   widths = 12,
   filter_select("locus_f", "Locus", sd, ~locus, multiple = TRUE),
-  filter_checkbox("fam_f", "Família do dataset", sd, ~family, inline = TRUE)
+  filter_checkbox("fam_f", "Dataset family", sd, ~family, inline = TRUE)
 )
 ```
 
@@ -90,26 +103,65 @@ p <- plot_ly(sd, x = ~dataset_label, y = ~gene_symbol,
                             dataset, "<br>PP.H4 = ", round(PP.H4, 3)),
              hoverinfo = "text", type = "scatter", mode = "markers") |>
   layout(
-    xaxis = list(title = NULL, tickangle = -45),
-    yaxis = list(title = NULL),
+    xaxis = list(title = NULL, tickangle = -45, categoryorder = "array",
+                 categoryarray = sort(unique(plot_dt$dataset_label))),
+    yaxis = list(title = NULL, categoryorder = "array",
+                 categoryarray = sort(unique(plot_dt$gene_symbol))),
     legend = list(title = list(text = "PP.H4 > 0.8")),
     margin = list(b = 140)
   )
 
 p <- htmlwidgets::onRender(p, "
-  function(el, x) {
+  function(el, x, data) {
+
+    // key -> [dataset_label, gene_symbol]
+    var map = {};
+    for (var i = 0; i < data.keys.length; i++) {
+      map[data.keys[i]] = [data.xs[i], data.ys[i]];
+    }
+
+    function applyAxes(keys) {
+      var xs, ys;
+      if (!keys || keys.length === 0) {
+        xs = data.allX;
+        ys = data.allY;
+      } else {
+        var seenX = {}, seenY = {};
+        keys.forEach(function(k) {
+          var v = map[k];
+          if (v) { seenX[v[0]] = true; seenY[v[1]] = true; }
+        });
+        xs = data.allX.filter(function(v) { return seenX[v]; });
+        ys = data.allY.filter(function(v) { return seenY[v]; });
+        if (xs.length === 0 || ys.length === 0) { xs = data.allX; ys = data.allY; }
+      }
+      Plotly.relayout(el, {
+        'xaxis.categoryorder': 'array', 'xaxis.categoryarray': xs,
+        'yaxis.categoryorder': 'array', 'yaxis.categoryarray': ys
+      });
+    }
+
+    // O crosstalk dispara o 'change' antes do plotly terminar de reescrever os
+    // traces; o setTimeout garante que o relayout aconteça depois do restyle.
+    if (window.crosstalk) {
+      var fh = new crosstalk.FilterHandle('explorer');
+      fh.on('change', function(e) {
+        setTimeout(function() { applyAxes(e.value); }, 30);
+      });
+    }
+
     el.on('plotly_click', function(d) {
       var fn = d.points[0].customdata;
       var img = document.getElementById('regional-img');
       var cap = document.getElementById('regional-caption');
-      if (!fn) { cap.innerText = 'Sem regional plot (não é significativo).'; img.style.display='none'; return; }
+      if (!fn) { cap.innerText = 'No regional plot (not significant).'; img.style.display='none'; return; }
       img.src = 'data/regional_plots/' + fn;
       img.style.display = 'block';
-      img.onerror = function() { cap.innerText = 'Arquivo não encontrado: ' + fn; img.style.display='none'; };
+      img.onerror = function() { cap.innerText = 'File not found: ' + fn; img.style.display='none'; };
       img.onload = function() { cap.innerText = fn; };
     });
   }
-")
+", data = axis_map)
 p
 ```
 
