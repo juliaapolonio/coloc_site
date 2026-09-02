@@ -4,7 +4,7 @@
     "href": "bubble_explorer.html",
     "title": "Colocalization Explorer",
     "section": "",
-    "text": "Locus\n\n\n\n\n\n\n\n\nFamília do dataset\n\n\n\nBigBrain\n\n\n\nDevBrain\n\n\n\nGTEx\n\n\n\nSingleBrain\n\n\n\n\n\n\n\n\n\nTip: start typing the name of a locus (ex. BIN1, KAT8) — the plot is only legible with 1 to 3 loci selected."
+    "text": "Locus\n\n\n\n\n\n\n\n\nDataset family\n\n\n\nBigBrain\n\n\n\nDevBrain\n\n\n\nGTEx\n\n\n\nSingleBrain\n\n\n\n\n\n\n\n\n\nTip: start typing the name of a locus (ex. BIN1, KAT8) — the plot is only legible with 1 to 3 loci selected."
   },
   {
     "objectID": "manhattan.html",
@@ -25,21 +25,28 @@
     "href": "cell_type.html",
     "title": "Cell Type Specificity",
     "section": "",
-    "text": "Ordered: pairs restricted to a single cell type first, grouped by the dominant type."
+    "text": "Ordered: pairs restricted to a single cell type first, grouped by the dominant type. White ∗ marks PP.H4 &gt; 0.8. Blocks read left to right."
   },
   {
     "objectID": "previous_findings.html",
     "href": "previous_findings.html",
     "title": "Previous Findings",
     "section": "",
-    "text": "123\nLoci on the table\n\n\n58\nwith literature reports to compare\n\n\n83%\nconvergence\n\n\n65\nno previous register (new or non-audited loci)"
+    "text": "123\nLoci on the table\n\n\n58\nwith literature reports to compare\n\n\n83%\nconcordance\n\n\n65\nno previous register (new or non-audited loci)"
+  },
+  {
+    "objectID": "previous_findings.html#overview",
+    "href": "previous_findings.html#overview",
+    "title": "Previous Findings",
+    "section": "Overview",
+    "text": "Overview\n\n\n\n\n\n\n\n\n\nOverlap = loci where at least one gene nominated here was also reported in the literature (concordant). “This study” alone = loci reported in the literature, but with no gene in common (discordant). “Literature” alone = loci with a previous report that did not reach significance here. The isolated bubble holds loci with no literature counterpart at all."
   },
   {
     "objectID": "previous_findings.html#full-table",
     "href": "previous_findings.html#full-table",
     "title": "Previous Findings",
     "section": "Full table",
-    "text": "Full table\n\n\n\n\n\n\n\n\n\n\n\n\nNoteComo a convergência é calculada\n\n\n\n\n\nConvergence = at least one gene in common between the genes that colocalized on this analysis (genes_significant) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). Divergence = there’s literature for the locus, but none of the genes coincides. No comparison = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis)."
+    "text": "Full table\n\n\n\n\n\n\n\n\n\n\n\n\nNoteHow concordance is calculated\n\n\n\n\n\nConcordant = at least one gene in common between the genes that colocalized on this analysis (genes_significant) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). Discordant = there’s literature for the locus, but none of the genes coincides. Literature only = the locus was reported before, but nothing reached significance here. No comparison = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis)."
   },
   {
     "objectID": "regional_plots.html",
@@ -56,6 +63,13 @@
     "text": "Note\n\n\n\nThis is still an ongoing project - results will keep being updated while the analysis advances.\n97\ntested loci\n\n\n86 (89%)\nloci with significant colocalization\n\n\n417\nprioritized genes\n\n\n423\nlocus–gene pairs\n\n\n273\nsQTL events\n\n\n44666\ntests in fetal brain datasets"
   },
   {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
+    "section": "Overview",
+    "text": "Overview\n\n\n\n\n\n\n1 row(s) in data/lista_locus.csv do not match any tested locus and were left out of the chart; the denominator is the 97 loci present in coloc_all_annotated.csv.\nClick a slice to zoom in. Non-colocalized loci are split by the minor allele frequency of their lead variant (rare &lt; 1% MAF, taken from the consensus sumstats), then by whether the VEP most severe consequence is coding.\n\n\n\n\n\n\n\n\n\n\n\n\nZoom on the sQTL branch above: splicing event class of every junction that colocalized."
+  },
+  {
     "objectID": "index.html#how-to-use-it",
     "href": "index.html#how-to-use-it",
     "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
@@ -68,6 +82,20 @@
     "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
     "section": "A peek at the methodology",
     "text": "A peek at the methodology\nThe results shown correspond to Bayesian colocalization (coloc.abf, PP.H4 ≥ 0,8) between the consensus AD GWAS (2026) and 23 xQTL datasets — BigBrain (adult, eQTL/sQTL), DevBrain (fetal, eQTL/sQTL), SingleBrain (7 major cell types) e GTEx (15 tissues). Colocalization windows were defined as 500 kb centered at the reported lead variant of each locus. Full methods will be published soon in a paper. Pipeline: nf_coloc."
+  },
+  {
+    "objectID": "dev_adult.html#locus-panel",
+    "href": "dev_adult.html#locus-panel",
+    "title": "Development vs Adult",
+    "section": "Locus panel",
+    "text": "Locus panel\nClick a point with signal in development to open the region: local Manhattan with the colocalization lead SNP, cell-type-resolved PLAC-seq arcs from fetal cortex, and the gene track. Everything is on the same x axis in hg38, so the variant, the contacts and the target gene line up vertically."
+  },
+  {
+    "objectID": "dev_adult.html#hi-c-support-diagnostics",
+    "href": "dev_adult.html#hi-c-support-diagnostics",
+    "title": "Development vs Adult",
+    "section": "Hi-C support diagnostics",
+    "text": "Hi-C support diagnostics\n\n\n\n\n\n\nNoteDoes the coloc variant actually contact the target gene?\n\n\n\n\n\n\n\n**Sanity check 1 — anchors in promoters:** 29.9% of arc anchors fall within 5 kb of a TSS. PLAC-seq with H3K4me3 is promoter-anchored by design, so this should be high; a low value points at a coordinate shift rather than biology.\n\n**Sanity check 2 — arc spans:** median 175 kb, 5th percentile 15 kb. MAPS discards very short contacts, so a floor around 20 kb is expected — promoter-proximal signals simply cannot produce an arc.\n\n**Variant-to-target support:** 1 of 50 dev pairs (2.0%) have an arc joining the coloc variant (±10 kb) to the target gene TSS (±10 kb). 22 pair(s) could not be evaluated (variant absent from the sumstats, or target gene absent from the UCSC track)."
   },
   {
     "objectID": "dev_adult.html#all-dev-only-pairs",
