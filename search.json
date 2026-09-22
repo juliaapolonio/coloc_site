@@ -32,21 +32,21 @@
     "href": "previous_findings.html",
     "title": "Previous Findings",
     "section": "",
-    "text": "123\nLoci on the table\n\n\n58\nwith literature reports to compare\n\n\n83%\nconcordance\n\n\n65\nno previous register (new or non-audited loci)"
+    "text": "97\ntested loci\n\n\n68\ncomparable (results here and in the literature)\n\n\n87%\nconcordance\n\n\n18\ncolocalized with no previous report"
   },
   {
     "objectID": "previous_findings.html#overview",
     "href": "previous_findings.html#overview",
     "title": "Previous Findings",
     "section": "Overview",
-    "text": "Overview\n\n\n\n\n\n\n\n\n\nOverlap = loci where at least one gene nominated here was also reported in the literature (concordant). “This study” alone = loci reported in the literature, but with no gene in common (discordant). “Literature” alone = loci with a previous report that did not reach significance here. The isolated bubble holds loci with no literature counterpart at all."
+    "text": "Overview\n\n\n\n\n\n\n\n\n\nOverlap = loci where at least one gene nominated here was also reported before (concordant). “This study” alone = both sources report genes, but none in common (discordant). “Literature” alone = previously reported, nothing significant here. The isolated bubble holds loci colocalized here with no literature counterpart. Out of 97 tested loci, 9 colocalized nowhere and have no previous report, so they fall outside the diagram."
   },
   {
     "objectID": "previous_findings.html#full-table",
     "href": "previous_findings.html#full-table",
     "title": "Previous Findings",
     "section": "Full table",
-    "text": "Full table\n\n\n\n\n\n\n\n\n\n\n\n\nNoteHow concordance is calculated\n\n\n\n\n\nConcordant = at least one gene in common between the genes that colocalized on this analysis (genes_significant) and the union of literature sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain). Discordant = there’s literature for the locus, but none of the genes coincides. Literature only = the locus was reported before, but nothing reached significance here. No comparison = none of the sources covers this locus (includes all 19 new loci from consensus meta-analysis)."
+    "text": "Full table\n\n\n\n\n\n\n\n\n\n\n\n\nNoteHow concordance is calculated\n\n\n\n\n\nThe denominator is the set of loci tested in this analysis, taken from coloc_all_annotated.csv. Genes nominated here are those with PP.H4 ≥ 0.8; literature genes are the union of the available sources (BigBrain eQTL/sQTL, Bellenguez, SingleBrain), matched to each locus both by name and by distance between GWAS lead variants. Concordant = at least one gene in common. Discordant = both sources report genes for the locus, none in common. Literature only = previously reported, nothing reached significance here. New (no literature) = colocalized here, no previous report. Loci that colocalized nowhere and have no previous report are counted in the total but fall outside the diagram."
   },
   {
     "objectID": "regional_plots.html",
