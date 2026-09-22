@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img"
+     aria-label="Manhattan plot peak over a brain-shaped skyline">
+  <!-- Ícone da aba: um manhattan plot minúsculo. As alturas dos pontos formam
+       uma cúpula, que a 16 px lê como perfil de cérebro; o ponto do ápice é
+       vermelho, o pico do sinal. Sem detalhe fino de propósito: qualquer traço
+       com menos de 2 px some no favicon. -->
+  <rect width="64" height="64" rx="14" fill="#1F3864"/>
+  <line x1="7" y1="52.5" x2="57" y2="52.5" stroke="#FFFFFF" stroke-opacity="0.28"
+        stroke-width="2" stroke-linecap="round"/>
+  <g fill="#FFFFFF">
+    <circle cx="9"  cy="45" r="3"/>
+    <circle cx="17" cy="38" r="3"/>
+    <circle cx="25" cy="29" r="3"/>
+    <circle cx="39" cy="27" r="3"/>
+    <circle cx="47" cy="37" r="3"/>
+    <circle cx="55" cy="44" r="3"/>
+  </g>
+  <circle cx="32" cy="18" r="4.6" fill="#F05A4F"/>
+</svg>

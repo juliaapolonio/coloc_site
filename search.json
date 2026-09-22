@@ -4,19 +4,19 @@
     "href": "bubble_explorer.html",
     "title": "Colocalization Explorer",
     "section": "",
-    "text": "Locus\n\n\n\n\n\n\n\n\nDataset family\n\n\n\nBigBrain\n\n\n\nDevBrain\n\n\n\nGTEx\n\n\n\nSingleBrain\n\n\n\n\n\n\n\n\n\nTip: start typing the name of a locus (ex. BIN1, KAT8) — the plot is only legible with 1 to 3 loci selected."
+    "text": "Locus\n\n\n\n\n\n\n\n\nDataset family\n\n\n\nBigBrain\n\n\n\nDevBrain\n\n\n\nGTEx\n\n\n\nSingleBrain\n\n\n\n\n\n\n\n\n\nTip: the plot opens on ABCA7. Start typing to swap it for another locus — the axis is only legible with 1 to 3 loci selected."
   },
   {
     "objectID": "manhattan.html",
     "href": "manhattan.html",
-    "title": "Alzheimer’s disease GWAS — interactive colocalization Manhattan plot",
+    "title": "Alzheimer’s disease GWAS — colocalization Manhattan plot",
     "section": "",
-    "text": "NoteHow to use\n\n\n\n\n\nHover your mouse in any variant of a significant locus: all variants of that locus will turn red and the box will show the summary of colocalization of that locus. Double-click to clear the highlight. For busiest regions you can use the zoom tool to help separate the labels.\nThe background points are variants outside the colocalization windows and are not interactive. To keep the scale legible, the plot shows only variants with p &lt; 1e-4 and the y axis was truncated on the top because of APOE locus."
+    "text": "NoteHow to use\n\n\n\n\n\nHover your mouse in any variant of a significant locus: all variants of that locus will turn red and the box will show the summary of colocalization of that locus. Double-click to clear the highlight. For busiest regions you can use the zoom tool to help separate the labels.\nThe background points are variants outside the colocalization windows and do not respond to the mouse. To keep the scale legible, the plot shows only variants with p &lt; 1e-4 and the y axis was truncated on the top because of APOE locus."
   },
   {
     "objectID": "manhattan.html#summary-of-colocalization-results-by-locus",
     "href": "manhattan.html#summary-of-colocalization-results-by-locus",
-    "title": "Alzheimer’s disease GWAS — interactive colocalization Manhattan plot",
+    "title": "Alzheimer’s disease GWAS — colocalization Manhattan plot",
     "section": "Summary of colocalization results by locus",
     "text": "Summary of colocalization results by locus"
   },
@@ -60,28 +60,28 @@
     "href": "index.html",
     "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
     "section": "",
-    "text": "Note\n\n\n\nThis is still an ongoing project - results will keep being updated while the analysis advances.\n97\ntested loci\n\n\n86 (89%)\nloci with significant colocalization\n\n\n417\nprioritized genes\n\n\n423\nlocus–gene pairs\n\n\n273\nsQTL events\n\n\n44666\ntests in fetal brain datasets"
-  },
-  {
-    "objectID": "index.html#overview",
-    "href": "index.html#overview",
-    "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
-    "section": "Overview",
-    "text": "Overview\n\n\n\n\n\n\n1 row(s) in data/lista_locus.csv do not match any tested locus and were left out of the chart; the denominator is the 97 loci present in coloc_all_annotated.csv.\nClick a slice to zoom in. Non-colocalized loci are split by the minor allele frequency of their lead variant (rare &lt; 1% MAF, taken from the consensus sumstats), then by whether the VEP most severe consequence is coding.\n\n\n\n\n\n\n\n\n\n\n\n\nZoom on the sQTL branch above: splicing event class of every junction that colocalized."
+    "text": "Note\n\n\n\nThis is still an ongoing project - results will keep being updated while the analysis advances.\n97\ntested loci\n\n\n86 (89%)\nloci with significant colocalization\n\n\n423\nlocus–gene pairs\n\n\n273\nsQTL events"
   },
   {
     "objectID": "index.html#how-to-use-it",
     "href": "index.html#how-to-use-it",
     "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
     "section": "How to use it",
-    "text": "How to use it\n\nManhattan (interactive) — Manhattan plot of the whole genome, hover through a locus to show colocalization details.\nColocalization Explorer — Full colocalization bubble plot, you can filter by dataset family and locus.\nDevelopment vs Adult — Dev/adult contrast, with highlight to dev-only pairs.\nCell Type Specificity — cell type specificity heatmap (sceQTL).\nLocus Table — browsable table, with an overview of results by locus."
+    "text": "How to use it\nEach page shows the same colocalization results from a different angle, and every panel is interactive. Nothing was filtered out: tests that did not colocalize are in here too, which is what makes the negative results readable.\n\nManhattan — the genome-wide association plot. Hover over any variant of a locus that colocalized and every variant of that locus turns red, while the box lists the genes and datasets behind the signal; double-click clears the highlight, and the zoom tool pulls apart labels in crowded regions.\nColocalization Explorer — every test as a bubble, sized by PP.H4 and coloured by whether it passed the 0.8 threshold, with filters for locus and dataset family. Click a significant bubble and its regional association plot opens right below the chart. Start with one to three loci selected: the axis is only legible at that scale.\nDevelopment vs Adult — one point per locus–gene pair, its best PP.H4 in adult datasets against its best in fetal datasets, so anything above the diagonal is stronger in development. Click a point with developmental signal and a locus panel opens underneath, stacking the local Manhattan, the colocalization lead variant, fetal-cortex PLAC-seq arcs and chromatin tracks by cell type, and the gene models — all on one shared hg38 axis, so variant, contacts and target gene line up vertically.\nCell Type Specificity — PP.H4 of each pair across the seven SingleBrain cell types, for pairs significant in at least one of them. An asterisk marks the cells above threshold, so a row carrying a single asterisk is a signal that only one cell type sees.\nLocus Table — one row per locus: the gene it was attributed to, the mechanism, the cell type and the developmental context. Searchable, sortable and exportable.\nPrevious Findings — where these results agree with colocalizations already reported by the BigBrain, Bellenguez and SingleBrain studies, and which loci carry a gene attribution for the first time here."
+  },
+  {
+    "objectID": "index.html#overview",
+    "href": "index.html#overview",
+    "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
+    "section": "Overview",
+    "text": "Overview\nWhere every tested locus landed. The outer ring splits the loci into those with no colocalizing gene and those with at least one, and the colocalized ones by whether the gene had already been reported by a previous study. Loci without colocalization open into two further rings: the minor allele frequency of their lead variant (rare below 1% MAF, taken from the consensus summary statistics), and whether its most severe consequence is coding — the question being whether the missing signal looks like a rare or a coding variant, which a common-variant QTL panel would not capture. Click a slice to zoom in.\n\n\n\n\n\n\nWhat kind of evidence supports each colocalizing pair. The inner ring is the molecular layer that carries the signal — expression, splicing, or both — and each slice opens into the developmental stage where the pair was significant. Read a pair as fetal-specific when it appears under “Development only”.\n\n\n\n\n\n\nThe splicing branch, junction by junction. Each colocalizing junction is counted once and classified by how its two ends compare with annotated splice sites: canonical when the junction reproduces an annotated intron exactly, and the remaining classes when both ends are annotated but belong to different introns (exon skipping), when only one end is annotated (alternative splice site), or when neither is (novel cryptic junction)."
   },
   {
     "objectID": "index.html#a-peek-at-the-methodology",
     "href": "index.html#a-peek-at-the-methodology",
     "title": "A multi-context colocalization atlas of Alzheimer’s Disease loci",
     "section": "A peek at the methodology",
-    "text": "A peek at the methodology\nThe results shown correspond to Bayesian colocalization (coloc.abf, PP.H4 ≥ 0,8) between the consensus AD GWAS (2026) and 23 xQTL datasets — BigBrain (adult, eQTL/sQTL), DevBrain (fetal, eQTL/sQTL), SingleBrain (7 major cell types) e GTEx (15 tissues). Colocalization windows were defined as 500 kb centered at the reported lead variant of each locus. Full methods will be published soon in a paper. Pipeline: nf_coloc."
+    "text": "A peek at the methodology\nThe results shown correspond to Bayesian colocalization (coloc.abf, PP.H4 &gt; 0.8) between the consensus AD GWAS (2026) and 23 xQTL datasets — BigBrain (adult, eQTL/sQTL), DevBrain (fetal, eQTL/sQTL), SingleBrain (7 major cell types) and GTEx (10 brain regions, skeletal muscle and whole blood). Colocalization windows were defined as 500 kb centered at the reported lead variant of each locus. Full methods will be published soon in a paper. Pipeline: nf_coloc."
   },
   {
     "objectID": "dev_adult.html#locus-panel",
